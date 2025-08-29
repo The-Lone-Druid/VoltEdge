@@ -1,58 +1,114 @@
-## VoltEdge AI Coding Agent Instructions
+# VoltEdge - AI Coding Instructions
 
-### Project Overview
+## 🔋 Project Overview
 
-- VoltEdge is a Next.js (app directory) web application for dealers to generate quotations, calculate GST, estimate battery backup/warranty, and manage product catalogs and landing pages.
-- Data is managed via Prisma ORM (PostgreSQL) with schema in `prisma/schema.prisma`.
-- UI is built with React and Tailwind CSS, see `src/app/` for main pages and global styles.
+VoltEdge is a **B2B SaaS for electrical dealers** specializing in GST calculations, battery warranty tracking, backup estimations, and professional quotation generation. Built with Next.js 15 (App Router), Prisma, and shadcn/ui components.
 
-### Key Workflows
+## 🎯 Core Business Logic Areas
 
-- **Development:**
-  - Start dev server: `npm run dev` (uses Next.js with Turbopack)
-  - Build: `npm run build` (runs Prisma generate, then Next.js build)
-  - Type-check: `npm run type-check`
-  - Lint: `npm run lint` (autofix: `npm run lint:fix`)
-  - Format: `npm run format` (check: `npm run format:check`)
-- **Database:**
-  - Generate client: `npm run db:generate`
-  - Push schema: `npm run db:push`
-  - Migrate: `npm run db:migrate`
-  - Seed: `npm run db:seed` (see `prisma/seed.ts` if present)
-  - Studio: `npm run db:studio` (visual DB UI)
-  - Reset: `npm run db:reset`
-- **Release:**
-  - Versioning: `npm run release` (see `.versionrc.json` for commit types)
+- **GST & Pricing**: Tax calculations, B2C/B2B pricing models
+- **Battery Management**: Warranty tracking, backup time calculations for Lead Acid/SMF/Lithium
+- **Quotation System**: Professional PDF generation with branding, sharable links, conversion tracking
+- **Dealer Portal**: Product catalogs, settings, custom templates
 
-### Conventions & Patterns
+## 🏗️ Architecture & Stack
 
-- **TypeScript:** Strict mode, paths alias `@/*` to `src/*` (see `tsconfig.json`).
-- **Styling:** Tailwind CSS via PostCSS (`postcss.config.mjs`). Prettier config in `.prettierrc` (uses `prettier-plugin-tailwindcss`).
-- **Linting:** ESLint config in `eslint.config.mjs` (extends Next.js, ignores build/output folders).
-- **Commits:** Conventional Commits enforced by Commitlint (`commitlint.config.js`).
-- **Environment:** Use `.env` for secrets and DB config. See `.env.example` for required variables.
-- **Images/Assets:** Store in `public/`.
-- **Generated Prisma Client:** Output to `src/generated/prisma/` (ignored by git).
+### Tech Stack
 
-### Architecture & Data Flow
+- **Frontend**: Next.js 15 + TurboNext, React 19, TypeScript 5
+- **UI**: shadcn/ui (New York style), Tailwind CSS 4, Radix primitives
+- **Database**: PostgreSQL + Prisma (custom output: `src/generated/prisma`)
+- **Forms**: React Hook Form + Zod validation
+- **Animations**: Motion (framer-motion), MagicUI components
 
-- **App Directory:** All pages/components in `src/app/`. Main entry: `src/app/page.tsx`, layout: `src/app/layout.tsx`.
-- **Prisma:** Models defined in `prisma/schema.prisma`. DB connection via `DATABASE_URL` in `.env`.
-- **Requirements:** See `.github/requirements.md` for feature epics (GST, battery, quotations, dealer landing page, etc.).
+### Key Directories
 
-### Integration Points
+```
+src/
+├── app/                  # Next.js App Router pages
+├── components/
+│   ├── ui/              # shadcn/ui components
+│   └── magicui/         # Custom animated components (Globe, etc.)
+├── generated/prisma/    # Custom Prisma client location
+├── hooks/               # React hooks (use-mobile.ts)
+└── lib/utils.ts        # Utility functions (cn helper)
+```
 
-- **Next.js:** Handles routing, SSR, and API routes (if present).
-- **Prisma:** ORM for DB access. Use generated client from `src/generated/prisma`.
-- **Email/File Upload:** Configurable via `.env` (see `EMAIL_SERVICE`, `UPLOAD_MAX_SIZE`, etc.).
+## 🛠️ Development Workflow
 
-### Examples
+### Essential Commands
 
-- To add a new dealer feature, reference `.github/requirements.md` for user stories and implement UI in `src/app/`, DB model in `prisma/schema.prisma`, and connect via Prisma client.
-- For GST calculation logic, ensure both inclusive/exclusive price views are supported as per Epic 1.
+```bash
+# Development with Turbo
+npm run dev              # Uses --turbopack flag
 
-### Tips for AI Agents
+# Database Operations
+npm run db:generate      # Generate Prisma client
+npm run db:push         # Push schema without migration
+npm run db:migrate      # Create and apply migration
+npm run db:studio       # Open Prisma Studio
+npm run db:reset        # Reset database completely
 
-> Always check `.github/requirements.md` for feature context before implementing business logic.
-> Use project scripts for DB and build tasks; do not run Prisma/Next.js commands directly unless necessary.
-> Follow commit and formatting conventions for all code changes.
+# Build & Deploy
+npm run build           # Turbo build with Prisma generation
+npm run type-check      # TypeScript validation
+```
+
+### Code Quality Setup
+
+- **ESLint**: Next.js + TypeScript rules with ignore patterns
+- **Prettier**: Auto-formatting with Tailwind plugin
+- **Husky + lint-staged**: Pre-commit hooks for code quality
+- **Commitlint**: Conventional commits enforced
+
+## 📋 Project-Specific Conventions
+
+### Component Patterns
+
+- Use shadcn/ui components from `@/components/ui`
+- Custom components in `magicui/` for animated elements
+- Utility classes managed via `cn()` helper in `@/lib/utils`
+- Form handling with `react-hook-form` + Zod schemas
+
+### Database Patterns
+
+- Prisma client generated to `src/generated/prisma` (not default location)
+- PostgreSQL as primary database
+- Always run `prisma generate` after schema changes
+
+### Import Aliases (from components.json)
+
+- `@/components` → src/components
+- `@/lib` → src/lib
+- `@/hooks` → src/hooks
+- `@/ui` → src/components/ui
+
+## 🎨 UI/UX Guidelines
+
+- **Design System**: shadcn/ui "new-york" style with neutral base colors
+- **Typography**: Geist Sans + Geist Mono fonts
+- **Icons**: Lucide React icon library
+- **Responsive**: Mobile-first approach with `use-mobile` hook
+
+## ⚡ Performance Considerations
+
+- TurboNext enabled for faster builds and dev server
+- Motion library for smooth animations
+- Prisma client optimized for edge functions
+- CSS variables for theming support
+
+## 🔍 Key Files to Reference
+
+- `.github/requirements.md` - Detailed business requirements and user stories
+- `components.json` - shadcn/ui configuration and aliases
+- `prisma/schema.prisma` - Database schema (currently minimal setup)
+- `src/components/magicui/globe.tsx` - Example of complex animated component
+
+## 📝 When Adding Features
+
+1. Check requirements.md for business context and user stories
+2. Use existing shadcn/ui components when possible
+3. Follow the established import alias patterns
+4. Run database commands via npm scripts, not direct Prisma CLI
+5. Ensure TypeScript strict mode compliance
+6. Test responsive behavior with mobile hook

@@ -63,3 +63,31 @@
 - **Story 7.6**: As a **dealer**, I want my landing page link to be sharable on **WhatsApp, social media, and SMS**, so I can promote my business digitally.
 
 - **Story 7.7**: As a **dealer**, I want the landing page to look like a **mini product catalog / shop-front**, so customers feel like they’re browsing an online store.
+
+---
+
+### 🔐 Epic 8: Authentication & User Management
+
+- **Story 8.1**: As a **master user**, I want to send email invitations to new dealers, so they can create their accounts with a secure setup flow.
+
+- **Story 8.2**: As a **dealer**, I want to receive an email invitation with a secure signup link, so I can create my account safely without manual password sharing.
+
+- **Story 8.3**: As a **dealer**, I want to set up my account with email verification and password creation, so my account is secure from the start.
+
+- **Story 8.4**: As a **user**, I want to see my current login status and profile information, so I know which account I'm using and can manage my session.
+
+- **Story 8.5**: As a **user**, I want to securely log in and log out of the system, so I can protect my account when using shared devices.
+
+- **Story 8.6**: As a **master user**, I want to view all active user sessions across the platform, so I can monitor system usage and detect suspicious activity.
+
+- **Story 8.7**: As a **user**, I want to see my own active sessions on different devices, so I can log out from devices I'm no longer using.
+
+- **Story 8.8**: As a **master user**, I want to view a complete activity log of all user actions, so I can track system usage and troubleshoot issues.
+
+- **Story 8.9**: As a **user**, I want to reset my password via email if I forget it, so I can regain access to my account securely.
+
+- **Story 8.10**: As a **master user**, I want to deactivate or reactivate dealer accounts, so I can manage access control for the platform.
+
+- **Story 8.11**: As a **user**, I want my session to automatically expire after inactivity, so my account remains secure if I forget to log out.
+
+- **Story 8.12**: As a **master user**, I want to assign different permission levels to users, so I can control what features each dealer can access.
