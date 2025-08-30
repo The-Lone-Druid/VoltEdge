@@ -48,21 +48,33 @@
 
 ---
 
-### 🎨 Epic 7: Dealer Landing Page & Online Presence
+### 🎨 Epic 7: Business Landing Page & Online Presence for R Batteries Auto Electrical Works
 
-- **Story 7.1**: As a **dealer**, I want a personalized landing page with my **business name, logo, and contact details**, so customers recognize and trust my brand.
+- **Story 7.1**: As the **business**, I want to manage our landing page with our **company name, logo, address, and contact details**, so customers recognize and trust our brand.
 
-- **Story 7.2**: As a **dealer**, I want to showcase my **products with images, descriptions, and pricing**, so customers can browse before requesting a quotation.
+- **Story 7.2**: As the **business**, I want to showcase our **battery and inverter products with images, descriptions, and pricing**, so customers can browse before requesting a quotation.
 
-- **Story 7.3**: As a **dealer**, I want to highlight **special offers, discounts, and combo deals**, so I can attract more leads online.
+- **Story 7.3**: As the **business**, I want to highlight our **special offers, discounts, and combo deals**, so we can attract more walk-in and online leads.
 
-- **Story 7.4**: As a **dealer**, I want my landing page to be **mobile-friendly and fast-loading**, so customers can easily view it on any device.
+- **Story 7.4**: As the **business**, I want the landing page to be **mobile-friendly and fast-loading**, so customers in Pune (and beyond) can easily access it on their phones.
 
-- **Story 7.5**: As a **dealer**, I want my landing page to include a **“Request a Quote” button**, so interested customers can directly connect with me.
+- **Story 7.5**: As the **business**, I want the landing page to include a **"Request a Quote" button**, so customers can connect with us directly via **WhatsApp, call, or email**.
 
-- **Story 7.6**: As a **dealer**, I want my landing page link to be sharable on **WhatsApp, social media, and SMS**, so I can promote my business digitally.
+- **Story 7.6**: As the **business**, I want the landing page link to be sharable on **WhatsApp, Google Maps, and social media**, so we can promote our store digitally.
 
-- **Story 7.7**: As a **dealer**, I want the landing page to look like a **mini product catalog / shop-front**, so customers feel like they’re browsing an online store.
+- **Story 7.7**: As the **business**, I want the landing page to look like a **mini online showroom/catalog**, so customers feel like they’re browsing our store even before visiting physically.
+
+- **Story 7.8**: As a **customer**, I want to visit the R Batteries landing page and **browse products without needing an account**, so the process is simple.
+
+- **Story 7.9**: As a **customer**, I want to **request a quotation directly from the landing page** by selecting products and entering my contact details, so I can get quick price offers.
+
+- **Story 7.10**: As the **business**, I want to update the landing page content (products, offers, combos) through a simple dashboard, so the storefront always stays updated.
+
+- **Story 7.11**: As the **business**, I want to embed our **Google Maps location** (`https://maps.app.goo.gl/SgeX42ETpPfJvqoK9`) on the landing page, so customers can easily locate our shop.
+
+- **Story 7.12**: As a **customer**, I want to click on the map and **open Google Maps for navigation**, so I can directly get driving/walking directions to R Batteries.
+
+- **Story 7.13**: As the **business**, I want the map section to be **visible on both desktop and mobile devices**, so customers can access location details on any platform.
 
 ---
 
