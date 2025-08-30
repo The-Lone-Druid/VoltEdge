@@ -13,3 +13,763 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+// ============================================================================
+// AUTHENTICATION & USER MANAGEMENT (Epic 8)
+// ============================================================================
+
+enum UserRole {
+  MASTER
+  DEALER
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING_INVITATION
+  SUSPENDED
+}
+
+enum Permission {
+  // Quotation permissions
+  CREATE_QUOTATION
+  EDIT_QUOTATION
+  DELETE_QUOTATION
+  SHARE_QUOTATION
+  VIEW_ALL_QUOTATIONS
+
+  // Product permissions
+  MANAGE_PRODUCTS
+  VIEW_PRODUCTS
+
+  // Customer permissions
+  MANAGE_CUSTOMERS
+  VIEW_CUSTOMERS
+
+  // Reporting permissions
+  VIEW_REPORTS
+  EXPORT_DATA
+
+  // Settings permissions
+  MANAGE_SETTINGS
+  MANAGE_TEMPLATES
+
+  // Admin permissions
+  MANAGE_USERS
+  VIEW_ACTIVITY_LOGS
+  SYSTEM_SETTINGS
+}
+
+model User {
+  id        String     @id @default(cuid())
+  email     String     @unique
+  firstName String?
+  lastName  String?
+  role      UserRole   @default(DEALER)
+  status    UserStatus @default(PENDING_INVITATION)
+
+  // Password & Authentication
+  passwordHash    String?
+  emailVerified   Boolean   @default(false)
+  emailVerifiedAt DateTime?
+
+  // Invitation system
+  invitedBy           String?
+  invitedByUser       User?     @relation("UserInvitations", fields: [invitedBy], references: [id])
+  invitedUsers        User[]    @relation("UserInvitations")
+  invitationToken     String?   @unique
+  invitationExpiresAt DateTime?
+
+  // Password reset
+  passwordResetToken     String?   @unique
+  passwordResetExpiresAt DateTime?
+
+  // Session management
+  sessions UserSession[]
+
+  // Activity tracking
+  activityLogs ActivityLog[]
+
+  // Business profile (for dealers)
+  dealerProfile DealerProfile?
+
+  // Products managed by dealer
+  dealerProducts Product[] @relation("DealerProducts")
+
+  // Quotations
+  quotations Quotation[]
+
+  // Warranties managed by dealer
+  dealerWarranties BatteryWarranty[] @relation("DealerWarranties")
+
+  // Backup calculations
+  dealerCalculations BackupCalculation[] @relation("DealerCalculations")
+
+  // User permissions (Epic 8.12)
+  userPermissions    UserPermission[]
+  grantedPermissions UserPermission[] @relation("PermissionGranter")
+
+  // Special offers managed by dealer
+  specialOffers SpecialOffer[] @relation("DealerOffers")
+
+  // Customer management
+  customers            Customer[]           @relation("DealerCustomers")
+  landingPageInquiries LandingPageInquiry[] @relation("DealerInquiries")
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  lastLoginAt DateTime?
+
+  @@map("users")
+}
+
+model UserPermission {
+  id         String     @id @default(cuid())
+  userId     String
+  user       User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  permission Permission
+
+  grantedBy     String?
+  grantedByUser User?   @relation("PermissionGranter", fields: [grantedBy], references: [id])
+
+  createdAt DateTime @default(now())
+
+  @@unique([userId, permission])
+  @@map("user_permissions")
+}
+
+model UserSession {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  sessionToken String  @unique
+  userAgent    String?
+  ipAddress    String?
+  deviceInfo   String?
+
+  isActive  Boolean  @default(true)
+  expiresAt DateTime
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_sessions")
+}
+
+enum ActivityType {
+  LOGIN
+  LOGOUT
+  CREATE_QUOTATION
+  UPDATE_QUOTATION
+  DELETE_QUOTATION
+  SHARE_QUOTATION
+  CONVERT_QUOTATION
+  UPDATE_PROFILE
+  MANAGE_PRODUCTS
+  GST_CALCULATION
+  BATTERY_CALCULATION
+  EXPORT_DATA
+  ADMIN_ACTION
+}
+
+model ActivityLog {
+  id     String @id @default(cuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  action    ActivityType
+  details   Json? // Store additional context
+  ipAddress String?
+  userAgent String?
+
+  createdAt DateTime @default(now())
+
+  @@map("activity_logs")
+}
+
+// ============================================================================
+// DEALER PROFILE & BUSINESS SETTINGS (Epic 6)
+// ============================================================================
+
+model DealerProfile {
+  id     String @id @default(cuid())
+  userId String @unique
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Business Information
+  businessName       String
+  businessType       String?
+  registrationNumber String?
+  gstNumber          String?
+
+  // Contact Information
+  phone    String?
+  whatsapp String?
+  address  String?
+  city     String?
+  state    String?
+  country  String  @default("India")
+  pincode  String?
+
+  // Branding
+  logoUrl    String?
+  websiteUrl String?
+
+  // Default Settings (Epic 6.1)
+  defaultGstRate      Decimal @default(18.00) @db.Decimal(5, 2)
+  defaultCurrency     String  @default("INR")
+  defaultDiscountRate Decimal @default(0.00) @db.Decimal(5, 2)
+
+  // Quotation Template Settings (Epic 6.3)
+  quotationPrefix    String  @default("QT")
+  quotationFooter    String?
+  termsAndConditions String?
+
+  // Landing Page Settings (Epic 7)
+  landingPageSlug        String? @unique
+  landingPageEnabled     Boolean @default(false)
+  landingPageTitle       String?
+  landingPageDescription String?
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("dealer_profiles")
+}
+
+// ============================================================================
+// PRODUCT CATALOG MANAGEMENT (Epic 6.2)
+// ============================================================================
+
+enum ProductCategory {
+  BATTERY
+  INVERTER
+  SOLAR_PANEL
+  ACCESSORIES
+  OTHER
+}
+
+enum BatteryType {
+  LEAD_ACID
+  SMF // Sealed Maintenance Free
+  LITHIUM
+  GEL
+  AGM
+}
+
+model Product {
+  id       String @id @default(cuid())
+  dealerId String
+  dealer   User   @relation("DealerProducts", fields: [dealerId], references: [id], onDelete: Cascade)
+
+  // Basic Information
+  name        String
+  description String?
+  sku         String?
+  category    ProductCategory
+  brand       String?
+  model       String?
+
+  // Pricing (Epic 1)
+  basePrice Decimal @db.Decimal(10, 2)
+  gstRate   Decimal @db.Decimal(5, 2)
+
+  // Battery Specific (Epic 2)
+  batteryType    BatteryType?
+  capacity       Decimal?     @db.Decimal(8, 2) // in Ah
+  voltage        Decimal?     @db.Decimal(5, 2) // in V
+  warrantyMonths Int?
+  efficiency     Decimal?     @db.Decimal(5, 2) // in percentage
+
+  // Inverter Specific
+  powerRating   Decimal? @db.Decimal(8, 2) // in VA/W
+  inputVoltage  String?
+  outputVoltage String?
+
+  // Images and Documents
+  images         ProductImage[]
+  specifications Json? // Store detailed specs as JSON
+
+  // Inventory
+  stockQuantity Int @default(0)
+  minimumStock  Int @default(0)
+
+  // Status
+  isActive   Boolean @default(true)
+  isFeatured Boolean @default(false)
+
+  // Relations
+  quotationItems QuotationItem[]
+  warranties     BatteryWarranty[] @relation("ProductWarranties")
+  offers         OfferProduct[]    @relation("ProductOffers")
+  comboItems     ComboItem[]       @relation("ComboProducts")
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dealerId, category])
+  @@index([dealerId, isActive])
+  @@map("products")
+}
+
+model ProductImage {
+  id        String  @id @default(cuid())
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  url       String
+  alt       String?
+  isPrimary Boolean @default(false)
+  order     Int     @default(0)
+
+  createdAt DateTime @default(now())
+
+  @@map("product_images")
+}
+
+// ============================================================================
+// SPECIAL OFFERS & COMBO DEALS (Epic 3.2, Epic 7.3)
+// ============================================================================
+
+enum OfferType {
+  PERCENTAGE_DISCOUNT
+  FIXED_AMOUNT_DISCOUNT
+  BUY_X_GET_Y
+  COMBO_DEAL
+  BULK_DISCOUNT
+}
+
+model SpecialOffer {
+  id       String @id @default(cuid())
+  dealerId String
+  dealer   User   @relation("DealerOffers", fields: [dealerId], references: [id], onDelete: Cascade)
+
+  title       String
+  description String?
+  offerType   OfferType
+
+  // Discount Configuration
+  discountValue     Decimal? @db.Decimal(10, 2) // Amount or percentage
+  minimumQuantity   Int?     @default(1)
+  maximumQuantity   Int?
+  minimumOrderValue Decimal? @db.Decimal(10, 2)
+
+  // Validity
+  isActive   Boolean   @default(true)
+  validFrom  DateTime  @default(now())
+  validUntil DateTime?
+
+  // Usage tracking
+  usageCount    Int  @default(0)
+  maxUsageCount Int?
+
+  // Relations
+  applicableProducts OfferProduct[]
+  comboItems         ComboItem[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dealerId, isActive])
+  @@map("special_offers")
+}
+
+model OfferProduct {
+  id      String       @id @default(cuid())
+  offerId String
+  offer   SpecialOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation("ProductOffers", fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([offerId, productId])
+  @@map("offer_products")
+}
+
+model ComboItem {
+  id      String       @id @default(cuid())
+  offerId String
+  offer   SpecialOffer @relation(fields: [offerId], references: [id], onDelete: Cascade)
+
+  productId String
+  product   Product @relation("ComboProducts", fields: [productId], references: [id], onDelete: Cascade)
+
+  quantity Int @default(1)
+  order    Int @default(0)
+
+  @@map("combo_items")
+}
+
+// ============================================================================
+// CUSTOMER MANAGEMENT (Supporting Epic 3, 7)
+// ============================================================================
+
+enum CustomerStatus {
+  LEAD
+  PROSPECT
+  ACTIVE
+  INACTIVE
+}
+
+enum LeadSource {
+  LANDING_PAGE
+  DIRECT_CONTACT
+  REFERRAL
+  SOCIAL_MEDIA
+  WHATSAPP
+  OTHER
+}
+
+model Customer {
+  id       String @id @default(cuid())
+  dealerId String
+  dealer   User   @relation("DealerCustomers", fields: [dealerId], references: [id], onDelete: Cascade)
+
+  // Basic Information
+  name     String
+  email    String?
+  phone    String?
+  whatsapp String?
+  address  String?
+  city     String?
+  state    String?
+  pincode  String?
+
+  // Business Information
+  companyName String?
+  gstNumber   String?
+
+  // Lead Information
+  status     CustomerStatus @default(LEAD)
+  leadSource LeadSource     @default(DIRECT_CONTACT)
+  leadValue  Decimal?       @db.Decimal(12, 2)
+
+  // Relationships
+  quotations       Quotation[]
+  landingPageViews LandingPageInquiry[]
+
+  // Notes and Tags
+  notes String?
+  tags  String[] // Array of tag strings
+
+  // Timestamps
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  lastContactAt DateTime?
+
+  @@index([dealerId, status])
+  @@index([dealerId, email])
+  @@map("customers")
+}
+
+model LandingPageInquiry {
+  id       String @id @default(cuid())
+  dealerId String
+  dealer   User   @relation("DealerInquiries", fields: [dealerId], references: [id], onDelete: Cascade)
+
+  customerId String?
+  customer   Customer? @relation(fields: [customerId], references: [id])
+
+  // Inquiry Details
+  name         String
+  email        String?
+  phone        String?
+  message      String?
+  interestedIn String? // Product category or specific product
+
+  // Source tracking
+  landingPageSlug String?
+  referrerUrl     String?
+  utmSource       String?
+  utmMedium       String?
+  utmCampaign     String?
+
+  // Status
+  isContacted Boolean   @default(false)
+  contactedAt DateTime?
+  notes       String?
+
+  createdAt DateTime @default(now())
+
+  @@index([dealerId, isContacted])
+  @@map("landing_page_inquiries")
+}
+
+// ============================================================================
+// QUOTATION SYSTEM (Epic 3, 4, 5)
+// ============================================================================
+
+enum QuotationStatus {
+  DRAFT
+  SENT
+  VIEWED
+  ACCEPTED
+  REJECTED
+  EXPIRED
+  CONVERTED
+}
+
+model Quotation {
+  id              String @id @default(cuid())
+  quotationNumber String @unique
+  dealerId        String
+  dealer          User   @relation(fields: [dealerId], references: [id], onDelete: Cascade)
+
+  // Customer Information
+  customerId      String?
+  customer        Customer? @relation(fields: [customerId], references: [id])
+  customerName    String
+  customerEmail   String?
+  customerPhone   String?
+  customerAddress String?
+
+  // Quotation Details
+  title           String?
+  notes           String?
+  termsConditions String?
+
+  // Pricing
+  subtotal      Decimal @db.Decimal(12, 2)
+  totalGst      Decimal @db.Decimal(12, 2)
+  totalDiscount Decimal @default(0) @db.Decimal(12, 2)
+  grandTotal    Decimal @db.Decimal(12, 2)
+
+  // Status and Tracking (Epic 4, 5)
+  status        QuotationStatus @default(DRAFT)
+  shareableSlug String?         @unique
+  shareableLink String?
+  linkExpiresAt DateTime?
+
+  // Conversion Tracking (Epic 5.2)
+  isConverted     Boolean   @default(false)
+  convertedAt     DateTime?
+  conversionValue Decimal?  @db.Decimal(12, 2)
+
+  // Viewing Analytics (Epic 4, 5)
+  viewCount    Int       @default(0)
+  lastViewedAt DateTime?
+
+  // Relations
+  items      QuotationItem[]
+  activities QuotationActivity[]
+
+  // Timestamps
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  validUntil DateTime?
+
+  @@index([dealerId, status])
+  @@index([shareableSlug])
+  @@map("quotations")
+}
+
+model QuotationItem {
+  id          String    @id @default(cuid())
+  quotationId String
+  quotation   Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  productId String?
+  product   Product? @relation(fields: [productId], references: [id])
+
+  // Item Details (can be custom if no product linked)
+  itemName    String
+  description String?
+
+  // Pricing
+  unitPrice Decimal @db.Decimal(10, 2)
+  quantity  Decimal @default(1) @db.Decimal(8, 2)
+  discount  Decimal @default(0) @db.Decimal(5, 2) // percentage
+  gstRate   Decimal @db.Decimal(5, 2)
+
+  // Calculated fields
+  lineSubtotal Decimal @db.Decimal(12, 2)
+  lineGst      Decimal @db.Decimal(12, 2)
+  lineTotal    Decimal @db.Decimal(12, 2)
+
+  order Int @default(0)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("quotation_items")
+}
+
+enum QuotationActivityType {
+  CREATED
+  UPDATED
+  SENT
+  VIEWED
+  DOWNLOADED
+  SHARED
+  CONVERTED
+  EXPIRED
+}
+
+model QuotationActivity {
+  id          String    @id @default(cuid())
+  quotationId String
+  quotation   Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+
+  activity    QuotationActivityType
+  description String?
+  ipAddress   String?
+  userAgent   String?
+  metadata    Json? // Additional tracking data
+
+  createdAt DateTime @default(now())
+
+  @@map("quotation_activities")
+}
+
+// ============================================================================
+// GST & PRICING CALCULATIONS (Epic 1)
+// ============================================================================
+
+model GstRate {
+  id          String  @id @default(cuid())
+  category    String // Product category or HSN code
+  rate        Decimal @db.Decimal(5, 2)
+  description String?
+  hsnCode     String?
+
+  isActive      Boolean   @default(true)
+  effectiveFrom DateTime  @default(now())
+  effectiveTo   DateTime?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([category, isActive])
+  @@map("gst_rates")
+}
+
+// ============================================================================
+// BATTERY WARRANTY & BACKUP CALCULATIONS (Epic 2)
+// ============================================================================
+
+model BatteryWarranty {
+  id       String @id @default(cuid())
+  dealerId String
+  dealer   User   @relation("DealerWarranties", fields: [dealerId], references: [id], onDelete: Cascade)
+
+  productId String?
+  product   Product? @relation("ProductWarranties", fields: [productId], references: [id])
+
+  // Customer & Purchase Info
+  customerName  String
+  customerPhone String?
+  customerEmail String?
+
+  // Battery Details
+  batteryBrand String
+  batteryModel String
+  batteryType  BatteryType
+  serialNumber String      @unique
+
+  // Warranty Details
+  purchaseDate       DateTime
+  warrantyMonths     Int
+  warrantyExpiryDate DateTime
+
+  // Installation Details
+  installationDate DateTime?
+  installedBy      String?
+
+  // Warranty Claims
+  claims WarrantyClaim[]
+
+  // Status
+  isActive Boolean @default(true)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([dealerId, warrantyExpiryDate])
+  @@index([serialNumber])
+  @@map("battery_warranties")
+}
+
+enum ClaimStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+model WarrantyClaim {
+  id         String          @id @default(cuid())
+  warrantyId String
+  warranty   BatteryWarranty @relation(fields: [warrantyId], references: [id], onDelete: Cascade)
+
+  claimNumber      String   @unique
+  issueDescription String
+  claimDate        DateTime @default(now())
+
+  status     ClaimStatus @default(PENDING)
+  resolution String?
+  resolvedAt DateTime?
+  resolvedBy String?
+
+  // Documentation
+  photos    String[] // URLs to claim photos
+  documents String[] // URLs to supporting documents
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("warranty_claims")
+}
+
+// ============================================================================
+// BACKUP CALCULATION TEMPLATES (Epic 2.2, 2.3)
+// ============================================================================
+
+model BackupCalculation {
+  id       String @id @default(cuid())
+  dealerId String
+  dealer   User   @relation("DealerCalculations", fields: [dealerId], references: [id], onDelete: Cascade)
+
+  // Calculation Parameters
+  batteryType     BatteryType
+  batteryCapacity Decimal     @db.Decimal(8, 2) // Ah
+  batteryVoltage  Decimal     @db.Decimal(5, 2) // V
+  loadWattage     Decimal     @db.Decimal(8, 2) // W
+  efficiency      Decimal     @db.Decimal(5, 2) // %
+
+  // Results
+  calculatedBackupHours   Decimal @db.Decimal(6, 2)
+  calculatedBackupMinutes Int
+
+  // Metadata
+  calculationName String?
+  notes           String?
+  customerName    String?
+
+  createdAt DateTime @default(now())
+
+  @@index([dealerId, createdAt])
+  @@map("backup_calculations")
+}
+
+// ============================================================================
+// SYSTEM CONFIGURATION
+// ============================================================================
+
+model SystemSetting {
+  id    String @id @default(cuid())
+  key   String @unique
+  value String
+  type  String @default("string") // string, number, boolean, json
+
+  description String?
+  isPublic    Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("system_settings")
+}
