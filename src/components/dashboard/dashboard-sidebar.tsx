@@ -3,6 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useSession } from 'next-auth/react'
+import { useState, useEffect } from 'react'
 import { cn } from '@/lib/utils'
 import {
   Home,
@@ -23,6 +24,8 @@ import {
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
+import { Sheet, SheetContent } from '@/components/ui/sheet'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 const navigationItems = [
   {
@@ -101,12 +104,18 @@ const adminItems = [
   },
 ]
 
-export function DashboardSidebar() {
+function SidebarContent({ onClose }: { onClose?: () => void }) {
   const pathname = usePathname()
   const { data: session } = useSession()
 
+  const handleLinkClick = () => {
+    if (onClose) {
+      onClose()
+    }
+  }
+
   return (
-    <div className='bg-background flex h-full w-64 flex-col border-r shadow-sm'>
+    <div className='flex h-full flex-col'>
       {/* Logo */}
       <div className='flex h-16 items-center px-6'>
         <div className='flex items-center space-x-2'>
@@ -120,31 +129,37 @@ export function DashboardSidebar() {
       <Separator />
 
       {/* Navigation */}
-      <nav className='flex-1 space-y-1 px-3 py-4'>
+      <nav className='flex-1 space-y-1 overflow-y-auto px-3 py-4'>
         {/* Main Navigation */}
-        {navigationItems.map(item => {
-          const isActive = pathname === item.href
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                'flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                isActive
-                  ? 'bg-primary text-primary-foreground'
-                  : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-              )}
-            >
-              <item.icon className='h-5 w-5' />
-              <span className='flex-1'>{item.title}</span>
-              {item.badge && (
-                <Badge variant='secondary' className='ml-auto text-xs'>
-                  {item.badge}
-                </Badge>
-              )}
-            </Link>
-          )
-        })}
+        <div className='space-y-1'>
+          {navigationItems.map(item => {
+            const isActive = pathname === item.href
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={handleLinkClick}
+                className={cn(
+                  'flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                  isActive
+                    ? 'bg-primary text-primary-foreground'
+                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                )}
+              >
+                <item.icon className='h-5 w-5 flex-shrink-0' />
+                <span className='flex-1 truncate'>{item.title}</span>
+                {item.badge && (
+                  <Badge
+                    variant='secondary'
+                    className='ml-auto flex-shrink-0 text-xs'
+                  >
+                    {item.badge}
+                  </Badge>
+                )}
+              </Link>
+            )
+          })}
+        </div>
 
         <Separator className='my-4' />
 
@@ -161,6 +176,7 @@ export function DashboardSidebar() {
                   <Link
                     key={item.href}
                     href={item.href}
+                    onClick={handleLinkClick}
                     className={cn(
                       'flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                       isActive
@@ -168,8 +184,8 @@ export function DashboardSidebar() {
                         : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                     )}
                   >
-                    <item.icon className='h-5 w-5' />
-                    <span>{item.title}</span>
+                    <item.icon className='h-5 w-5 flex-shrink-0' />
+                    <span className='truncate'>{item.title}</span>
                   </Link>
                 )
               })}
@@ -190,6 +206,7 @@ export function DashboardSidebar() {
                 <Link
                   key={item.href}
                   href={item.href}
+                  onClick={handleLinkClick}
                   className={cn(
                     'flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
                     isActive
@@ -197,8 +214,8 @@ export function DashboardSidebar() {
                       : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
                   )}
                 >
-                  <item.icon className='h-5 w-5' />
-                  <span>{item.title}</span>
+                  <item.icon className='h-5 w-5 flex-shrink-0' />
+                  <span className='truncate'>{item.title}</span>
                 </Link>
               )
             })}
@@ -210,6 +227,7 @@ export function DashboardSidebar() {
       <div className='border-t px-3 py-4'>
         <Link
           href='/dashboard/settings'
+          onClick={handleLinkClick}
           className={cn(
             'flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
             pathname === '/dashboard/settings'
@@ -217,10 +235,48 @@ export function DashboardSidebar() {
               : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
           )}
         >
-          <Settings className='h-5 w-5' />
-          <span>Settings</span>
+          <Settings className='h-5 w-5 flex-shrink-0' />
+          <span className='truncate'>Settings</span>
         </Link>
       </div>
+    </div>
+  )
+}
+
+export function DashboardSidebar() {
+  const isMobile = useIsMobile()
+  const [isOpen, setIsOpen] = useState(false)
+
+  // Close sidebar when route changes on mobile
+  const pathname = usePathname()
+  useEffect(() => {
+    setIsOpen(false)
+  }, [pathname])
+
+  // Export the toggle function for use by the header
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      ;(
+        window as typeof window & { toggleSidebar?: () => void }
+      ).toggleSidebar = () => setIsOpen(!isOpen)
+    }
+  }, [isOpen])
+
+  if (isMobile) {
+    return (
+      <Sheet open={isOpen} onOpenChange={setIsOpen}>
+        <SheetContent side='left' className='w-80 p-0'>
+          <div className='bg-background h-full'>
+            <SidebarContent onClose={() => setIsOpen(false)} />
+          </div>
+        </SheetContent>
+      </Sheet>
+    )
+  }
+
+  return (
+    <div className='bg-background hidden h-full w-64 flex-col border-r shadow-sm lg:flex'>
+      <SidebarContent />
     </div>
   )
 }

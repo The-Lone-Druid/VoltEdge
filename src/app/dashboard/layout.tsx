@@ -24,18 +24,18 @@ export default async function DashboardLayout({
 
   return (
     <DashboardWrapper>
-      <div className='bg-background flex h-screen'>
-        {/* Sidebar */}
+      <div className='bg-background flex h-screen overflow-hidden'>
+        {/* Sidebar - Hidden on mobile, shown on desktop */}
         <DashboardSidebar />
 
-        {/* Main content */}
-        <div className='flex flex-1 flex-col overflow-hidden'>
+        {/* Main content area */}
+        <div className='flex min-w-0 flex-1 flex-col'>
           {/* Header */}
           <DashboardHeader />
 
-          {/* Page content */}
-          <main className='bg-background flex-1 overflow-x-hidden overflow-y-auto p-6'>
-            {children}
+          {/* Page content with proper mobile spacing */}
+          <main className='bg-background flex-1 overflow-y-auto'>
+            <div className='max-w-full p-4 sm:p-6 lg:p-8'>{children}</div>
           </main>
         </div>
       </div>

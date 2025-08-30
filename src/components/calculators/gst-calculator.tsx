@@ -12,18 +12,25 @@ import {
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select'
 import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Skeleton } from '@/components/ui/skeleton'
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from '@/components/ui/popover'
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from '@/components/ui/command'
+import { cn } from '@/lib/utils'
 import {
   Calculator,
   RefreshCw,
@@ -33,6 +40,7 @@ import {
   Check,
   History,
   AlertCircle,
+  ChevronDown,
 } from 'lucide-react'
 
 interface CategoryGSTInfo {
@@ -97,6 +105,7 @@ export function GSTCalculator() {
   const [error, setError] = useState<string>('')
   const [copied, setCopied] = useState<boolean>(false)
   const [history, setHistory] = useState<CalculationHistory[]>([])
+  const [categoryOpen, setCategoryOpen] = useState<boolean>(false)
 
   // Fetch GST rates from API
   useEffect(() => {
@@ -348,53 +357,89 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
   }
 
   return (
-    <div className='space-y-6'>
-      <div className='grid gap-6 lg:grid-cols-2'>
+    <div className='mx-auto max-w-7xl space-y-4 overflow-hidden sm:space-y-6'>
+      <div className='grid gap-4 sm:gap-6 xl:grid-cols-2'>
         {/* Input Panel */}
-        <Card>
-          <CardHeader>
-            <CardTitle className='flex items-center gap-2'>
+        <Card className='min-w-0 overflow-hidden'>
+          <CardHeader className='pb-4'>
+            <CardTitle className='flex items-center gap-2 text-lg sm:text-xl'>
               <Calculator className='h-5 w-5' />
               Calculate GST
             </CardTitle>
-            <CardDescription>
+            <CardDescription className='text-sm'>
               Calculate GST for your electrical products with real-time rates
             </CardDescription>
           </CardHeader>
           <CardContent className='space-y-4'>
             {/* Product Category Selection */}
             <div className='space-y-2'>
-              <Label htmlFor='category'>Product Category</Label>
-              <Select
-                value={selectedCategory}
-                onValueChange={handleCategoryChange}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder='Select product category' />
-                </SelectTrigger>
-                <SelectContent>
-                  {categories.map(category => (
-                    <SelectItem
-                      key={category.category}
-                      value={category.category}
-                    >
-                      <div className='flex w-full items-center justify-between'>
-                        <span>{category.description}</span>
-                        <div className='flex items-center gap-2'>
-                          <Badge variant='secondary'>{category.rate}%</Badge>
-                          {category.productCount > 0 && (
-                            <Badge variant='outline' className='text-xs'>
-                              {category.productCount} products
-                            </Badge>
-                          )}
-                        </div>
-                      </div>
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Label className='text-sm font-medium'>Product Category</Label>
+              <Popover open={categoryOpen} onOpenChange={setCategoryOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant='outline'
+                    role='combobox'
+                    aria-expanded={categoryOpen}
+                    className='h-10 w-full justify-between'
+                  >
+                    {selectedCategory
+                      ? categories.find(c => c.category === selectedCategory)
+                          ?.description
+                      : 'Select product category...'}
+                    <ChevronDown className='ml-2 h-4 w-4 shrink-0 opacity-50' />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className='w-full p-0' align='start'>
+                  <Command>
+                    <CommandInput
+                      placeholder='Search categories...'
+                      className='h-9'
+                    />
+                    <CommandList className='max-h-[200px]'>
+                      <CommandEmpty>No categories found.</CommandEmpty>
+                      <CommandGroup>
+                        {categories.map(category => (
+                          <CommandItem
+                            key={category.category}
+                            value={category.description}
+                            onSelect={() => {
+                              handleCategoryChange(category.category)
+                              setCategoryOpen(false)
+                            }}
+                            className='p-3'
+                          >
+                            <div className='flex w-full items-start justify-between gap-2'>
+                              <div className='min-w-0 flex-1'>
+                                <div className='truncate text-sm font-medium'>
+                                  {category.description}
+                                </div>
+                                <div className='mt-1 flex items-center gap-1'>
+                                  <Badge
+                                    variant='secondary'
+                                    className='h-5 text-xs'
+                                  >
+                                    {category.rate}%
+                                  </Badge>
+                                  {category.productCount > 0 && (
+                                    <Badge
+                                      variant='outline'
+                                      className='h-5 text-xs'
+                                    >
+                                      {category.productCount} items
+                                    </Badge>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
               {selectedCategory && (
-                <p className='text-muted-foreground text-sm'>
+                <p className='text-muted-foreground text-xs sm:text-sm'>
                   {
                     categories.find(c => c.category === selectedCategory)
                       ?.description
@@ -406,7 +451,7 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
 
             {/* Amount Input */}
             <div className='space-y-2'>
-              <Label htmlFor='amount'>
+              <Label htmlFor='amount' className='text-sm font-medium'>
                 Amount {isInclusive ? '(GST Inclusive)' : '(GST Exclusive)'}
               </Label>
               <div className='relative'>
@@ -419,7 +464,7 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
                   placeholder='Enter amount'
                   value={amount}
                   onChange={e => setAmount(e.target.value)}
-                  className='pl-8'
+                  className='h-10 pl-8'
                   min='0'
                   step='0.01'
                 />
@@ -428,7 +473,9 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
 
             {/* Custom GST Rate (if needed) */}
             <div className='space-y-2'>
-              <Label htmlFor='gst-rate'>GST Rate (%)</Label>
+              <Label htmlFor='gst-rate' className='text-sm font-medium'>
+                GST Rate (%)
+              </Label>
               <Input
                 id='gst-rate'
                 type='number'
@@ -437,15 +484,18 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
                 min='0'
                 max='50'
                 step='0.1'
+                className='h-10'
               />
             </div>
 
             {/* Toggle Options */}
             <div className='space-y-4'>
-              <div className='flex items-center justify-between'>
+              <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
                 <div className='space-y-0.5'>
-                  <Label htmlFor='price-type'>Price Type</Label>
-                  <p className='text-muted-foreground text-sm'>
+                  <Label htmlFor='price-type' className='text-sm font-medium'>
+                    Price Type
+                  </Label>
+                  <p className='text-muted-foreground text-xs sm:text-sm'>
                     {isInclusive
                       ? 'Amount includes GST'
                       : 'Amount excludes GST'}
@@ -453,9 +503,10 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
                 </div>
                 <div className='flex items-center gap-2'>
                   <span
-                    className={
+                    className={cn(
+                      'text-sm',
                       !isInclusive ? 'font-medium' : 'text-muted-foreground'
-                    }
+                    )}
                   >
                     Exclusive
                   </span>
@@ -465,19 +516,22 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
                     onCheckedChange={setIsInclusive}
                   />
                   <span
-                    className={
+                    className={cn(
+                      'text-sm',
                       isInclusive ? 'font-medium' : 'text-muted-foreground'
-                    }
+                    )}
                   >
                     Inclusive
                   </span>
                 </div>
               </div>
 
-              <div className='flex items-center justify-between'>
+              <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between'>
                 <div className='space-y-0.5'>
-                  <Label htmlFor='state-type'>Transaction Type</Label>
-                  <p className='text-muted-foreground text-sm'>
+                  <Label htmlFor='state-type' className='text-sm font-medium'>
+                    Transaction Type
+                  </Label>
+                  <p className='text-muted-foreground text-xs sm:text-sm'>
                     {isIntraState
                       ? 'Same state (CGST + SGST)'
                       : 'Different state (IGST)'}
@@ -485,9 +539,10 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
                 </div>
                 <div className='flex items-center gap-2'>
                   <span
-                    className={
+                    className={cn(
+                      'text-sm',
                       !isIntraState ? 'font-medium' : 'text-muted-foreground'
-                    }
+                    )}
                   >
                     Inter-state
                   </span>
@@ -497,9 +552,10 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
                     onCheckedChange={setIsIntraState}
                   />
                   <span
-                    className={
+                    className={cn(
+                      'text-sm',
                       isIntraState ? 'font-medium' : 'text-muted-foreground'
-                    }
+                    )}
                   >
                     Intra-state
                   </span>
@@ -508,15 +564,19 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
             </div>
 
             {/* Action Buttons */}
-            <div className='flex gap-2'>
-              <Button variant='outline' onClick={clearForm} className='flex-1'>
+            <div className='flex flex-col gap-2 sm:flex-row sm:gap-3'>
+              <Button
+                variant='outline'
+                onClick={clearForm}
+                className='h-10 flex-1'
+              >
                 <RefreshCw className='mr-2 h-4 w-4' />
                 Clear
               </Button>
               <Button
                 onClick={saveToHistory}
                 disabled={!calculation}
-                className='flex-1'
+                className='h-10 flex-1'
               >
                 <History className='mr-2 h-4 w-4' />
                 Save
@@ -526,35 +586,37 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
             {error && (
               <Alert variant='destructive'>
                 <AlertCircle className='h-4 w-4' />
-                <AlertDescription>{error}</AlertDescription>
+                <AlertDescription className='text-sm'>{error}</AlertDescription>
               </Alert>
             )}
           </CardContent>
         </Card>
 
         {/* Results Panel */}
-        <Card>
-          <CardHeader>
-            <CardTitle className='flex items-center justify-between'>
-              <span className='flex items-center gap-2'>
-                <ArrowRightLeft className='h-5 w-5' />
-                Calculation Results
+        <Card className='min-w-0 overflow-hidden'>
+          <CardHeader className='pb-4'>
+            <CardTitle className='flex items-center justify-between text-lg sm:text-xl'>
+              <span className='flex min-w-0 items-center gap-2'>
+                <ArrowRightLeft className='h-5 w-5 flex-shrink-0' />
+                <span className='truncate'>Calculation Results</span>
               </span>
               {calculation && (
                 <Button
                   variant='ghost'
                   size='sm'
                   onClick={() => copyToClipboard(formatCalculationSummary())}
+                  className='h-8 w-8 p-0 sm:h-9 sm:w-auto sm:px-2'
                 >
                   {copied ? (
                     <Check className='h-4 w-4' />
                   ) : (
                     <Copy className='h-4 w-4' />
                   )}
+                  <span className='sr-only sm:not-sr-only sm:ml-2'>Copy</span>
                 </Button>
               )}
             </CardTitle>
-            <CardDescription>
+            <CardDescription className='text-sm'>
               GST breakdown and price calculations based on your product data
             </CardDescription>
           </CardHeader>
@@ -562,18 +624,20 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
             {calculation && priceCalculation ? (
               <div className='space-y-4'>
                 {/* Price Summary */}
-                <div className='grid grid-cols-2 gap-4'>
+                <div className='grid grid-cols-2 gap-3 sm:gap-4'>
                   <div className='space-y-1'>
-                    <p className='text-muted-foreground text-sm'>Base Amount</p>
-                    <p className='text-lg font-semibold'>
+                    <p className='text-muted-foreground text-xs sm:text-sm'>
+                      Base Amount
+                    </p>
+                    <p className='text-base font-semibold sm:text-lg'>
                       {formatCurrency(calculation.originalAmount)}
                     </p>
                   </div>
                   <div className='space-y-1'>
-                    <p className='text-muted-foreground text-sm'>
+                    <p className='text-muted-foreground text-xs sm:text-sm'>
                       Total Amount
                     </p>
-                    <p className='text-primary text-lg font-semibold'>
+                    <p className='text-primary text-base font-semibold sm:text-lg'>
                       {formatCurrency(calculation.totalAmount)}
                     </p>
                   </div>
@@ -583,11 +647,13 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
 
                 {/* GST Breakdown */}
                 <div className='space-y-3'>
-                  <h4 className='font-medium'>GST Breakdown ({gstRate}%)</h4>
+                  <h4 className='text-sm font-medium sm:text-base'>
+                    GST Breakdown ({gstRate}%)
+                  </h4>
 
-                  <div className='grid grid-cols-2 gap-4 text-sm'>
+                  <div className='space-y-2 text-xs sm:text-sm'>
                     {isIntraState ? (
-                      <>
+                      <div className='grid gap-2'>
                         <div className='flex justify-between'>
                           <span className='text-muted-foreground'>
                             CGST ({gstRate / 2}%):
@@ -604,9 +670,9 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
                             {formatCurrency(calculation.breakdown.sgst)}
                           </span>
                         </div>
-                      </>
+                      </div>
                     ) : (
-                      <div className='col-span-2 flex justify-between'>
+                      <div className='flex justify-between'>
                         <span className='text-muted-foreground'>
                           IGST ({gstRate}%):
                         </span>
@@ -618,8 +684,10 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
                   </div>
 
                   <div className='bg-muted flex justify-between rounded-lg p-3'>
-                    <span className='font-medium'>Total GST:</span>
-                    <span className='text-primary font-semibold'>
+                    <span className='text-sm font-medium sm:text-base'>
+                      Total GST:
+                    </span>
+                    <span className='text-primary text-sm font-semibold sm:text-base'>
                       {formatCurrency(calculation.gstAmount)}
                     </span>
                   </div>
@@ -629,8 +697,10 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
 
                 {/* Price Conversion */}
                 <div className='space-y-3'>
-                  <h4 className='font-medium'>Price Conversion</h4>
-                  <div className='grid gap-2 text-sm'>
+                  <h4 className='text-sm font-medium sm:text-base'>
+                    Price Conversion
+                  </h4>
+                  <div className='grid gap-2 text-xs sm:text-sm'>
                     <div className='flex justify-between'>
                       <span className='text-muted-foreground'>
                         GST Exclusive Price:
@@ -653,7 +723,7 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
                 {/* Info Alert */}
                 <Alert>
                   <Info className='h-4 w-4' />
-                  <AlertDescription>
+                  <AlertDescription className='text-xs sm:text-sm'>
                     {isIntraState
                       ? 'Intra-state transaction: GST split equally between CGST and SGST'
                       : 'Inter-state transaction: Full GST amount charged as IGST'}
@@ -661,12 +731,12 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
                 </Alert>
               </div>
             ) : (
-              <div className='text-muted-foreground flex flex-col items-center justify-center py-8 text-center'>
-                <Calculator className='mb-4 h-12 w-12 opacity-50' />
-                <p className='text-lg font-medium'>
+              <div className='text-muted-foreground flex flex-col items-center justify-center py-6 text-center sm:py-8'>
+                <Calculator className='mb-4 h-10 w-10 opacity-50 sm:h-12 sm:w-12' />
+                <p className='text-base font-medium sm:text-lg'>
                   Enter amount to calculate GST
                 </p>
-                <p className='text-sm'>
+                <p className='mt-1 text-xs sm:text-sm'>
                   Choose a product category and enter the amount to see GST
                   breakdown
                 </p>
@@ -678,42 +748,52 @@ ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${f
 
       {/* Calculation History */}
       {history.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle className='flex items-center gap-2'>
-              <History className='h-5 w-5' />
-              Recent Calculations
+        <Card className='min-w-0 overflow-hidden'>
+          <CardHeader className='pb-4'>
+            <CardTitle className='flex items-center gap-2 text-lg sm:text-xl'>
+              <History className='h-5 w-5 flex-shrink-0' />
+              <span className='truncate'>Recent Calculations</span>
             </CardTitle>
-            <CardDescription>
+            <CardDescription className='text-sm'>
               Your recent GST calculations for quick reference
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className='space-y-2'>
+            <div className='space-y-2 sm:space-y-3'>
               {history.slice(0, 5).map(item => (
                 <div
                   key={item.id}
-                  className='border-border hover:bg-muted/50 flex items-center justify-between rounded-lg border p-3 transition-colors'
+                  className='border-border hover:bg-muted/50 flex flex-col gap-3 rounded-lg border p-3 transition-colors sm:flex-row sm:items-center sm:justify-between'
                 >
-                  <div className='flex items-center gap-3'>
-                    <Badge variant='outline'>{item.gstRate}%</Badge>
-                    <div>
-                      <p className='font-medium'>
+                  <div className='flex items-center gap-2 sm:gap-3'>
+                    <Badge variant='outline' className='text-xs'>
+                      {item.gstRate}%
+                    </Badge>
+                    <div className='min-w-0 flex-1'>
+                      <p className='text-sm font-medium sm:text-base'>
                         {formatCurrency(item.amount)}{' '}
-                        {item.isInclusive ? '(Inc.)' : '(Exc.)'}
+                        <span className='text-muted-foreground text-xs sm:text-sm'>
+                          {item.isInclusive ? '(Inc.)' : '(Exc.)'}
+                        </span>
                       </p>
-                      <p className='text-muted-foreground text-sm'>
+                      <p className='text-muted-foreground truncate text-xs sm:text-sm'>
                         {categories.find(c => c.category === item.category)
-                          ?.description || item.category}{' '}
-                        • {item.timestamp.toLocaleString()}
+                          ?.description || item.category}
+                      </p>
+                      <p className='text-muted-foreground text-xs'>
+                        {item.timestamp.toLocaleDateString()}{' '}
+                        {item.timestamp.toLocaleTimeString([], {
+                          hour: '2-digit',
+                          minute: '2-digit',
+                        })}
                       </p>
                     </div>
                   </div>
-                  <div className='text-right'>
-                    <p className='font-medium'>
+                  <div className='text-left sm:text-right'>
+                    <p className='text-sm font-medium sm:text-base'>
                       {formatCurrency(item.result.totalAmount)}
                     </p>
-                    <p className='text-muted-foreground text-sm'>
+                    <p className='text-muted-foreground text-xs sm:text-sm'>
                       GST: {formatCurrency(item.result.gstAmount)}
                     </p>
                   </div>

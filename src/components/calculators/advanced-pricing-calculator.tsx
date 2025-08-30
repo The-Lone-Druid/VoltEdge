@@ -15,6 +15,7 @@ import { Switch } from '@/components/ui/switch'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { cn } from '@/lib/utils'
 import {
   Calculator,
   TrendingUp,
@@ -168,30 +169,31 @@ export function AdvancedPricingCalculator() {
   }
 
   return (
-    <div className='space-y-6'>
+    <div className='space-y-4 sm:space-y-6'>
       {/* Header Controls */}
       <Card>
-        <CardHeader>
-          <div className='flex items-center justify-between'>
+        <CardHeader className='pb-4'>
+          <div className='flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between'>
             <div>
-              <CardTitle className='flex items-center gap-2'>
+              <CardTitle className='flex items-center gap-2 text-lg sm:text-xl'>
                 <Calculator className='h-5 w-5' />
                 Advanced Pricing Calculator
               </CardTitle>
-              <CardDescription>
+              <CardDescription className='text-sm'>
                 Calculate pricing, margins, and bulk discounts for B2B and B2C
                 sales
               </CardDescription>
             </div>
-            <div className='flex items-center gap-4'>
+            <div className='flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4'>
               {/* Business Mode Toggle */}
               <div className='flex items-center gap-2'>
                 <span
-                  className={
+                  className={cn(
+                    'text-sm',
                     businessMode === 'B2C'
                       ? 'font-medium'
                       : 'text-muted-foreground'
-                  }
+                  )}
                 >
                   B2C
                 </span>
@@ -202,11 +204,12 @@ export function AdvancedPricingCalculator() {
                   }
                 />
                 <span
-                  className={
+                  className={cn(
+                    'text-sm',
                     businessMode === 'B2B'
                       ? 'font-medium'
                       : 'text-muted-foreground'
-                  }
+                  )}
                 >
                   B2B
                 </span>
@@ -219,12 +222,12 @@ export function AdvancedPricingCalculator() {
         </CardHeader>
       </Card>
 
-      <div className='grid gap-6 lg:grid-cols-2'>
+      <div className='grid gap-4 sm:gap-6 xl:grid-cols-2'>
         {/* Input Panel */}
-        <div className='space-y-6'>
+        <div className='space-y-4 sm:space-y-6'>
           <Card>
-            <CardHeader>
-              <CardTitle className='flex items-center gap-2'>
+            <CardHeader className='pb-4'>
+              <CardTitle className='flex items-center gap-2 text-lg sm:text-xl'>
                 <DollarSign className='h-5 w-5' />
                 Pricing Inputs
               </CardTitle>
@@ -232,7 +235,9 @@ export function AdvancedPricingCalculator() {
             <CardContent className='space-y-4'>
               {/* Base Price */}
               <div className='space-y-2'>
-                <Label htmlFor='base-price'>Base Selling Price (₹)</Label>
+                <Label htmlFor='base-price' className='text-sm font-medium'>
+                  Base Selling Price (₹)
+                </Label>
                 <Input
                   id='base-price'
                   type='number'
@@ -241,12 +246,15 @@ export function AdvancedPricingCalculator() {
                   onChange={e => setBasePrice(e.target.value)}
                   min='0'
                   step='0.01'
+                  className='h-10'
                 />
               </div>
 
               {/* Cost Price */}
               <div className='space-y-2'>
-                <Label htmlFor='cost-price'>Cost Price (₹)</Label>
+                <Label htmlFor='cost-price' className='text-sm font-medium'>
+                  Cost Price (₹)
+                </Label>
                 <Input
                   id='cost-price'
                   type='number'
@@ -255,12 +263,15 @@ export function AdvancedPricingCalculator() {
                   onChange={e => setCostPrice(e.target.value)}
                   min='0'
                   step='0.01'
+                  className='h-10'
                 />
               </div>
 
               {/* Quantity */}
               <div className='space-y-2'>
-                <Label htmlFor='quantity'>Quantity</Label>
+                <Label htmlFor='quantity' className='text-sm font-medium'>
+                  Quantity
+                </Label>
                 <Input
                   id='quantity'
                   type='number'
@@ -268,12 +279,15 @@ export function AdvancedPricingCalculator() {
                   value={quantity}
                   onChange={e => setQuantity(e.target.value)}
                   min='1'
+                  className='h-10'
                 />
               </div>
 
               {/* GST Rate */}
               <div className='space-y-2'>
-                <Label htmlFor='gst-rate'>GST Rate (%)</Label>
+                <Label htmlFor='gst-rate' className='text-sm font-medium'>
+                  GST Rate (%)
+                </Label>
                 <Input
                   id='gst-rate'
                   type='number'
@@ -282,10 +296,15 @@ export function AdvancedPricingCalculator() {
                   min='0'
                   max='50'
                   step='0.1'
+                  className='h-10'
                 />
               </div>
 
-              <Button variant='outline' onClick={clearForm} className='w-full'>
+              <Button
+                variant='outline'
+                onClick={clearForm}
+                className='h-10 w-full'
+              >
                 <RefreshCw className='mr-2 h-4 w-4' />
                 Clear All
               </Button>
@@ -294,28 +313,30 @@ export function AdvancedPricingCalculator() {
 
           {/* Pricing Tiers */}
           <Card>
-            <CardHeader>
-              <CardTitle className='flex items-center gap-2'>
+            <CardHeader className='pb-4'>
+              <CardTitle className='flex items-center gap-2 text-lg sm:text-xl'>
                 <Users className='h-5 w-5' />
                 {businessMode} Pricing Tiers
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className='space-y-2'>
+              <div className='space-y-2 sm:space-y-3'>
                 {pricingTiers.map((tier, index) => (
                   <div
                     key={index}
-                    className='flex items-center justify-between rounded border p-2'
+                    className='flex flex-col gap-2 rounded border p-3 sm:flex-row sm:items-center sm:justify-between'
                   >
                     <div className='flex items-center gap-2'>
-                      <Badge variant='outline'>{tier.name}</Badge>
-                      <span className='text-muted-foreground text-sm'>
+                      <Badge variant='outline' className='text-xs'>
+                        {tier.name}
+                      </Badge>
+                      <span className='text-muted-foreground text-xs sm:text-sm'>
                         {tier.minQty}+ units
                       </span>
                     </div>
                     <div className='flex items-center gap-1'>
                       <Percent className='h-3 w-3' />
-                      <span className='font-medium'>
+                      <span className='text-sm font-medium'>
                         {tier.discountPercent}%
                       </span>
                     </div>
@@ -327,18 +348,22 @@ export function AdvancedPricingCalculator() {
         </div>
 
         {/* Results Panel */}
-        <div className='space-y-6'>
+        <div className='space-y-4 sm:space-y-6'>
           <Tabs defaultValue='bulk' className='w-full'>
-            <TabsList className='grid w-full grid-cols-2'>
-              <TabsTrigger value='bulk'>Bulk Pricing</TabsTrigger>
-              <TabsTrigger value='margin'>Margin Analysis</TabsTrigger>
+            <TabsList className='grid h-10 w-full grid-cols-2'>
+              <TabsTrigger value='bulk' className='text-sm'>
+                Bulk Pricing
+              </TabsTrigger>
+              <TabsTrigger value='margin' className='text-sm'>
+                Margin Analysis
+              </TabsTrigger>
             </TabsList>
 
             {/* Bulk Pricing Results */}
             <TabsContent value='bulk'>
               <Card>
-                <CardHeader>
-                  <CardTitle className='flex items-center gap-2'>
+                <CardHeader className='pb-4'>
+                  <CardTitle className='flex items-center gap-2 text-lg sm:text-xl'>
                     <Package className='h-5 w-5' />
                     Bulk Pricing Calculation
                   </CardTitle>
@@ -347,20 +372,20 @@ export function AdvancedPricingCalculator() {
                   {bulkResult ? (
                     <div className='space-y-4'>
                       {/* Summary */}
-                      <div className='grid grid-cols-2 gap-4'>
+                      <div className='grid grid-cols-2 gap-3 sm:gap-4'>
                         <div className='space-y-1'>
-                          <p className='text-muted-foreground text-sm'>
+                          <p className='text-muted-foreground text-xs sm:text-sm'>
                             Unit Price
                           </p>
-                          <p className='text-lg font-semibold'>
+                          <p className='text-base font-semibold sm:text-lg'>
                             {formatCurrency(bulkResult.unitPrice)}
                           </p>
                         </div>
                         <div className='space-y-1'>
-                          <p className='text-muted-foreground text-sm'>
+                          <p className='text-muted-foreground text-xs sm:text-sm'>
                             Quantity
                           </p>
-                          <p className='text-lg font-semibold'>
+                          <p className='text-base font-semibold sm:text-lg'>
                             {bulkResult.quantity} units
                           </p>
                         </div>
@@ -370,18 +395,23 @@ export function AdvancedPricingCalculator() {
 
                       {/* Discount Details */}
                       {bulkResult.discount.tier && (
-                        <div className='space-y-2'>
-                          <h4 className='font-medium'>Applied Discount</h4>
+                        <div className='space-y-2 sm:space-y-3'>
+                          <h4 className='text-sm font-medium sm:text-base'>
+                            Applied Discount
+                          </h4>
                           <div className='bg-muted rounded-lg p-3'>
-                            <div className='mb-2 flex items-center justify-between'>
-                              <span className='font-medium'>
+                            <div className='mb-2 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                              <span className='text-sm font-medium sm:text-base'>
                                 {bulkResult.discount.tier.name} Tier
                               </span>
-                              <Badge variant='secondary'>
+                              <Badge
+                                variant='secondary'
+                                className='w-fit text-xs'
+                              >
                                 {bulkResult.discount.percentage}% OFF
                               </Badge>
                             </div>
-                            <div className='space-y-1 text-sm'>
+                            <div className='space-y-1 text-xs sm:text-sm'>
                               <div className='flex justify-between'>
                                 <span className='text-muted-foreground'>
                                   Original Total:
@@ -412,9 +442,11 @@ export function AdvancedPricingCalculator() {
                       )}
 
                       {/* GST Breakdown */}
-                      <div className='space-y-2'>
-                        <h4 className='font-medium'>Tax Calculation</h4>
-                        <div className='space-y-1 text-sm'>
+                      <div className='space-y-2 sm:space-y-3'>
+                        <h4 className='text-sm font-medium sm:text-base'>
+                          Tax Calculation
+                        </h4>
+                        <div className='space-y-1 text-xs sm:text-sm'>
                           <div className='flex justify-between'>
                             <span className='text-muted-foreground'>
                               GST ({bulkResult.gst.rate}%):
@@ -429,19 +461,19 @@ export function AdvancedPricingCalculator() {
                       {/* Final Total */}
                       <div className='space-y-2'>
                         <div className='flex items-center justify-between'>
-                          <span className='text-lg font-medium'>
+                          <span className='text-base font-medium sm:text-lg'>
                             Final Total:
                           </span>
-                          <span className='text-primary text-xl font-bold'>
+                          <span className='text-primary text-lg font-bold sm:text-xl'>
                             {formatCurrency(bulkResult.finalTotal)}
                           </span>
                         </div>
                         {bulkResult.savings > 0 && (
                           <div className='flex items-center justify-between'>
-                            <span className='text-muted-foreground'>
+                            <span className='text-muted-foreground text-sm'>
                               Total Savings:
                             </span>
-                            <span className='font-medium text-green-600'>
+                            <span className='text-sm font-medium text-green-600'>
                               {formatCurrency(bulkResult.savings)}
                             </span>
                           </div>
@@ -449,12 +481,12 @@ export function AdvancedPricingCalculator() {
                       </div>
                     </div>
                   ) : (
-                    <div className='text-muted-foreground flex flex-col items-center justify-center py-8 text-center'>
-                      <Package className='mb-4 h-12 w-12 opacity-50' />
-                      <p className='text-lg font-medium'>
+                    <div className='text-muted-foreground flex flex-col items-center justify-center py-6 text-center sm:py-8'>
+                      <Package className='mb-4 h-10 w-10 opacity-50 sm:h-12 sm:w-12' />
+                      <p className='text-base font-medium sm:text-lg'>
                         Enter pricing details
                       </p>
-                      <p className='text-sm'>
+                      <p className='mt-1 text-xs sm:text-sm'>
                         Add base price and quantity to see bulk pricing
                       </p>
                     </div>
@@ -466,8 +498,8 @@ export function AdvancedPricingCalculator() {
             {/* Margin Analysis Results */}
             <TabsContent value='margin'>
               <Card>
-                <CardHeader>
-                  <CardTitle className='flex items-center gap-2'>
+                <CardHeader className='pb-4'>
+                  <CardTitle className='flex items-center gap-2 text-lg sm:text-xl'>
                     <TrendingUp className='h-5 w-5' />
                     Profit Margin Analysis
                   </CardTitle>
@@ -476,20 +508,20 @@ export function AdvancedPricingCalculator() {
                   {marginResult ? (
                     <div className='space-y-4'>
                       {/* Price Summary */}
-                      <div className='grid grid-cols-2 gap-4'>
+                      <div className='grid grid-cols-2 gap-3 sm:gap-4'>
                         <div className='space-y-1'>
-                          <p className='text-muted-foreground text-sm'>
+                          <p className='text-muted-foreground text-xs sm:text-sm'>
                             Cost Price
                           </p>
-                          <p className='text-lg font-semibold'>
+                          <p className='text-base font-semibold sm:text-lg'>
                             {formatCurrency(marginResult.costPrice)}
                           </p>
                         </div>
                         <div className='space-y-1'>
-                          <p className='text-muted-foreground text-sm'>
+                          <p className='text-muted-foreground text-xs sm:text-sm'>
                             Selling Price
                           </p>
-                          <p className='text-lg font-semibold'>
+                          <p className='text-base font-semibold sm:text-lg'>
                             {formatCurrency(marginResult.sellingPrice)}
                           </p>
                         </div>
@@ -499,18 +531,20 @@ export function AdvancedPricingCalculator() {
 
                       {/* Margin Calculations */}
                       <div className='space-y-3'>
-                        <h4 className='font-medium'>Profitability Metrics</h4>
+                        <h4 className='text-sm font-medium sm:text-base'>
+                          Profitability Metrics
+                        </h4>
 
-                        <div className='grid grid-cols-2 gap-4'>
+                        <div className='grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4'>
                           <div className='bg-muted rounded-lg p-3'>
                             <div className='space-y-1'>
-                              <p className='text-muted-foreground text-sm'>
+                              <p className='text-muted-foreground text-xs sm:text-sm'>
                                 Gross Margin
                               </p>
-                              <p className='text-primary text-xl font-bold'>
+                              <p className='text-primary text-lg font-bold sm:text-xl'>
                                 {marginResult.marginPercent.toFixed(2)}%
                               </p>
-                              <p className='text-muted-foreground text-sm'>
+                              <p className='text-muted-foreground text-xs sm:text-sm'>
                                 {formatCurrency(marginResult.margin)} profit
                               </p>
                             </div>
@@ -518,13 +552,13 @@ export function AdvancedPricingCalculator() {
 
                           <div className='bg-muted rounded-lg p-3'>
                             <div className='space-y-1'>
-                              <p className='text-muted-foreground text-sm'>
+                              <p className='text-muted-foreground text-xs sm:text-sm'>
                                 Markup
                               </p>
-                              <p className='text-secondary-foreground text-xl font-bold'>
+                              <p className='text-secondary-foreground text-lg font-bold sm:text-xl'>
                                 {marginResult.markupPercent.toFixed(2)}%
                               </p>
-                              <p className='text-muted-foreground text-sm'>
+                              <p className='text-muted-foreground text-xs sm:text-sm'>
                                 {formatCurrency(marginResult.markup)} markup
                               </p>
                             </div>
@@ -533,8 +567,10 @@ export function AdvancedPricingCalculator() {
 
                         {/* Margin Health Indicator */}
                         <div className='rounded-lg border p-3'>
-                          <div className='flex items-center justify-between'>
-                            <span className='font-medium'>Margin Health:</span>
+                          <div className='flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between'>
+                            <span className='text-sm font-medium sm:text-base'>
+                              Margin Health:
+                            </span>
                             <Badge
                               variant={
                                 marginResult.marginPercent >= 30
@@ -543,6 +579,7 @@ export function AdvancedPricingCalculator() {
                                     ? 'secondary'
                                     : 'destructive'
                               }
+                              className='w-fit text-xs'
                             >
                               {marginResult.marginPercent >= 30
                                 ? 'Excellent'
@@ -553,7 +590,7 @@ export function AdvancedPricingCalculator() {
                                     : 'Poor'}
                             </Badge>
                           </div>
-                          <p className='text-muted-foreground mt-1 text-sm'>
+                          <p className='text-muted-foreground mt-1 text-xs sm:text-sm'>
                             {marginResult.marginPercent >= 30
                               ? 'High profit margin - very healthy business'
                               : marginResult.marginPercent >= 20
@@ -566,12 +603,12 @@ export function AdvancedPricingCalculator() {
                       </div>
                     </div>
                   ) : (
-                    <div className='text-muted-foreground flex flex-col items-center justify-center py-8 text-center'>
-                      <BarChart3 className='mb-4 h-12 w-12 opacity-50' />
-                      <p className='text-lg font-medium'>
+                    <div className='text-muted-foreground flex flex-col items-center justify-center py-6 text-center sm:py-8'>
+                      <BarChart3 className='mb-4 h-10 w-10 opacity-50 sm:h-12 sm:w-12' />
+                      <p className='text-base font-medium sm:text-lg'>
                         Enter cost and selling price
                       </p>
-                      <p className='text-sm'>
+                      <p className='mt-1 text-xs sm:text-sm'>
                         Add both prices to analyze profit margins
                       </p>
                     </div>

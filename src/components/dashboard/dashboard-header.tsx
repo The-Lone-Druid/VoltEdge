@@ -10,6 +10,7 @@ import {
   User,
   Settings,
   Monitor,
+  Menu,
 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -23,12 +24,25 @@ import {
 } from '@/components/ui/dropdown-menu'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { Badge } from '@/components/ui/badge'
+import { useIsMobile } from '@/hooks/use-mobile'
 
 export function DashboardHeader() {
   const { data: session } = useSession()
+  const isMobile = useIsMobile()
 
   const handleSignOut = () => {
     signOut({ callbackUrl: '/auth/signin' })
+  }
+
+  const handleMenuToggle = () => {
+    if (typeof window !== 'undefined') {
+      const windowWithToggle = window as typeof window & {
+        toggleSidebar?: () => void
+      }
+      if (windowWithToggle.toggleSidebar) {
+        windowWithToggle.toggleSidebar()
+      }
+    }
   }
 
   const getInitials = (firstName?: string | null, lastName?: string | null) => {
@@ -38,20 +52,38 @@ export function DashboardHeader() {
 
   return (
     <header className='bg-background h-16 border-b'>
-      <div className='flex h-full items-center justify-between px-6'>
-        {/* Left side - Search */}
-        <div className='flex items-center space-x-4'>
-          <div className='relative w-96'>
+      <div className='flex h-full items-center justify-between px-4 sm:px-6'>
+        {/* Left side - Mobile menu + Search */}
+        <div className='flex flex-1 items-center space-x-2 sm:space-x-4'>
+          {/* Mobile menu button */}
+          {isMobile && (
+            <Button
+              variant='ghost'
+              size='sm'
+              onClick={handleMenuToggle}
+              className='lg:hidden'
+            >
+              <Menu className='h-5 w-5' />
+              <span className='sr-only'>Toggle menu</span>
+            </Button>
+          )}
+
+          {/* Search */}
+          <div className='relative max-w-sm flex-1 sm:max-w-md lg:max-w-lg'>
             <Search className='text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2' />
             <Input
-              placeholder='Search quotations, products, customers...'
-              className='pl-10'
+              placeholder={
+                isMobile
+                  ? 'Search...'
+                  : 'Search quotations, products, customers...'
+              }
+              className='pl-10 text-sm'
             />
           </div>
         </div>
 
         {/* Right side - Notifications and User menu */}
-        <div className='flex items-center space-x-4'>
+        <div className='flex items-center space-x-2 sm:space-x-4'>
           {/* Notifications */}
           <Button variant='ghost' size='sm' className='relative'>
             <Bell className='h-5 w-5' />
