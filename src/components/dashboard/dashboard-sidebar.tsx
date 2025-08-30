@@ -19,6 +19,7 @@ import {
   Globe,
   Activity,
   Wrench,
+  Calculator,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -31,8 +32,14 @@ const navigationItems = [
   },
   {
     title: 'GST Calculator',
-    href: '/dashboard/gst-calculator',
+    href: '/dashboard/calculators/gst',
     icon: DollarSign,
+    badge: 'New',
+  },
+  {
+    title: 'Pricing Calculator',
+    href: '/dashboard/calculators/pricing',
+    icon: Calculator,
     badge: 'New',
   },
   {

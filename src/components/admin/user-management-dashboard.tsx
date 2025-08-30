@@ -40,6 +40,7 @@ import {
   RefreshCw,
 } from 'lucide-react'
 import { InviteUserDialog } from './invite-user-dialog'
+import { PageHeader } from '../dashboard/page-header'
 
 interface User {
   id: string
@@ -141,7 +142,7 @@ export function UserManagementDashboard() {
         setMessage(error.message || `Failed to ${action} user`)
       }
     } catch (error) {
-      setMessage(`An error occurred while ${action}ing user`)
+      setMessage(`An error occurred while ${action}ing user: ${error}`)
     } finally {
       setActionLoading(null)
     }
@@ -167,7 +168,7 @@ export function UserManagementDashboard() {
         setMessage(error.message || 'Failed to resend invitation')
       }
     } catch (error) {
-      setMessage('An error occurred while resending invitation')
+      setMessage('An error occurred while resending invitation: ' + error)
     } finally {
       setActionLoading(null)
     }
@@ -199,7 +200,7 @@ export function UserManagementDashboard() {
         setMessage(error.message || 'Failed to cancel invitation')
       }
     } catch (error) {
-      setMessage('An error occurred while cancelling invitation')
+      setMessage('An error occurred while cancelling invitation: ' + error)
     } finally {
       setActionLoading(null)
     }
@@ -280,18 +281,16 @@ export function UserManagementDashboard() {
   return (
     <div className='space-y-6'>
       {/* Header */}
-      <div className='flex items-center justify-between'>
-        <div>
-          <h1 className='text-3xl font-bold'>User Management</h1>
-          <p className='text-muted-foreground'>
-            Manage users, invitations, and permissions
-          </p>
-        </div>
-        <Button onClick={() => setShowInviteDialog(true)}>
-          <UserPlus className='mr-2 h-4 w-4' />
-          Invite User
-        </Button>
-      </div>
+      <PageHeader
+        title={'User Management'}
+        subtitle={'Manage users, invitations, and permissions'}
+        actions={
+          <Button onClick={() => setShowInviteDialog(true)}>
+            <UserPlus className='mr-2 h-4 w-4' />
+            Invite User
+          </Button>
+        }
+      />
 
       {message && (
         <Alert>

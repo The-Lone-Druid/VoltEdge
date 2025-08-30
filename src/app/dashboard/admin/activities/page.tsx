@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { ActivityLogsView } from '@/components/admin/activity-logs-view'
+import { PageHeader } from '../../../../components/dashboard/page-header'
 
 export const metadata: Metadata = {
   title: 'Activity Logs | VoltEdge',
@@ -19,12 +20,13 @@ export default async function ActivityLogsPage() {
 
   return (
     <div className='container mx-auto py-6'>
-      <div className='mb-6'>
-        <h1 className='text-3xl font-bold'>Activity Logs</h1>
-        <p className='text-muted-foreground'>
-          Monitor system activity and user actions across the platform
-        </p>
-      </div>
+      <PageHeader
+        title={'Activity Logs'}
+        subtitle={
+          'Monitor system activity and user actions across the platform'
+        }
+      />
+
       <ActivityLogsView />
     </div>
   )
