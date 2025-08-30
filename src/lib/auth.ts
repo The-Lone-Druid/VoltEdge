@@ -15,6 +15,7 @@ declare module 'next-auth' {
       status: 'ACTIVE' | 'INACTIVE' | 'PENDING_INVITATION' | 'SUSPENDED'
       firstName?: string | null
       lastName?: string | null
+      emailVerified: boolean
       dealerProfile?: {
         id: string
         businessName: string
@@ -30,6 +31,7 @@ declare module 'next-auth' {
     status: 'ACTIVE' | 'INACTIVE' | 'PENDING_INVITATION' | 'SUSPENDED'
     firstName?: string | null
     lastName?: string | null
+    emailVerified: boolean
     dealerProfile?: {
       id: string
       businessName: string
@@ -43,6 +45,7 @@ declare module 'next-auth/jwt' {
     id: string
     role: 'MASTER' | 'DEALER'
     status: 'ACTIVE' | 'INACTIVE' | 'PENDING_INVITATION' | 'SUSPENDED'
+    emailVerified: boolean
     dealerProfile?: {
       id: string
       businessName: string
@@ -121,6 +124,7 @@ export const authOptions: NextAuthOptions = {
           status: user.status,
           firstName: user.firstName,
           lastName: user.lastName,
+          emailVerified: user.emailVerifiedAt !== null,
           dealerProfile: user.dealerProfile,
         }
       },
@@ -136,6 +140,7 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id
         token.role = user.role
         token.status = user.status
+        token.emailVerified = Boolean(user.emailVerified)
         token.dealerProfile = user.dealerProfile
       }
 
@@ -151,22 +156,15 @@ export const authOptions: NextAuthOptions = {
         session.user.id = token.id
         session.user.role = token.role
         session.user.status = token.status
+        session.user.emailVerified = token.emailVerified
         session.user.dealerProfile = token.dealerProfile
       }
       return session
     },
-    async signIn({ user, account }) {
+    async signIn({ account }) {
       if (account?.provider === 'credentials') {
-        // Create user session record
-        await prisma.userSession.create({
-          data: {
-            userId: user.id,
-            sessionToken: `session_${Date.now()}_${Math.random()}`,
-            expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000), // 24 hours
-            userAgent: '', // Will be populated by middleware
-            ipAddress: '', // Will be populated by middleware
-          },
-        })
+        // The session token tracking will be handled by middleware
+        // since we need access to request headers there
       }
       return true
     },

@@ -73,6 +73,10 @@ model User {
   emailVerified   Boolean   @default(false)
   emailVerifiedAt DateTime?
 
+  // Email verification
+  emailVerificationToken     String?   @unique
+  emailVerificationExpiresAt DateTime?
+
   // Invitation system
   invitedBy           String?
   invitedByUser       User?     @relation("UserInvitations", fields: [invitedBy], references: [id])

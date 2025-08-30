@@ -1,7 +1,16 @@
 'use client'
 
+import Link from 'next/link'
 import { useSession, signOut } from 'next-auth/react'
-import { Bell, Search, ChevronDown, LogOut, User, Settings } from 'lucide-react'
+import {
+  Bell,
+  Search,
+  ChevronDown,
+  LogOut,
+  User,
+  Settings,
+  Monitor,
+} from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import {
@@ -96,13 +105,32 @@ export function DashboardHeader() {
                 </div>
               </DropdownMenuLabel>
               <DropdownMenuSeparator />
-              <DropdownMenuItem>
-                <User className='mr-2 h-4 w-4' />
-                <span>Profile</span>
+              <DropdownMenuItem asChild>
+                <Link
+                  href='/dashboard/settings'
+                  className='flex w-full items-center'
+                >
+                  <User className='mr-2 h-4 w-4' />
+                  <span>Profile</span>
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className='mr-2 h-4 w-4' />
-                <span>Settings</span>
+              <DropdownMenuItem asChild>
+                <Link
+                  href='/dashboard/settings'
+                  className='flex w-full items-center'
+                >
+                  <Settings className='mr-2 h-4 w-4' />
+                  <span>Settings</span>
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link
+                  href='/dashboard/settings?tab=sessions'
+                  className='flex w-full items-center'
+                >
+                  <Monitor className='mr-2 h-4 w-4' />
+                  <span>Active Sessions</span>
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut}>

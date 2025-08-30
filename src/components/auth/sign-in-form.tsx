@@ -58,12 +58,24 @@ export function SignInForm() {
       if (result?.error) {
         setFormError(result.error)
       } else if (result?.ok) {
-        // Get the session to check user role and redirect accordingly
+        // Get the session to check user role and email verification
         const session = await getSession()
-        if (session?.user.role === 'MASTER') {
-          router.push('/dashboard')
-        } else {
-          router.push('/dashboard')
+
+        if (session?.user) {
+          // Check if email is verified
+          if (!session.user.emailVerified) {
+            router.push(
+              `/auth/verify-email?email=${encodeURIComponent(session.user.email)}`
+            )
+            return
+          }
+
+          // Redirect based on role
+          if (session.user.role === 'MASTER') {
+            router.push('/dashboard')
+          } else {
+            router.push('/dashboard')
+          }
         }
       }
     } catch (error) {
@@ -193,16 +205,6 @@ export function SignInForm() {
               <Button asChild variant='link' className='text-sm'>
                 <Link href='/auth/forgot-password'>Forgot your password?</Link>
               </Button>
-            </div>
-
-            <div className='bg-muted mt-6 rounded-md p-4'>
-              <p className='text-muted-foreground mb-2 text-sm'>
-                Demo Accounts:
-              </p>
-              <div className='text-muted-foreground space-y-1 text-xs'>
-                <div>Master: zahid.786shaikh@gmail.com</div>
-                <div>Dealer: demo@voltedge.com</div>
-              </div>
             </div>
           </CardContent>
         </Card>

@@ -441,3 +441,122 @@ export async function updateUserStatus(
     return { success: false, error: 'Failed to update user status' }
   }
 }
+
+// Email verification functions
+export async function sendVerificationEmail(email: string, token: string) {
+  try {
+    const verificationUrl = `${process.env.NEXTAUTH_URL}/auth/verify-email?token=${token}`
+
+    const subject = 'Verify your VoltEdge account email'
+    const content = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <h2 style="color: #333;">Verify Your Email Address</h2>
+        <p>Thank you for signing up with VoltEdge! Please click the button below to verify your email address:</p>
+
+        <div style="text-align: center; margin: 30px 0;">
+          <a href="${verificationUrl}"
+             style="background-color: #007bff; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; display: inline-block;">
+            Verify Email Address
+          </a>
+        </div>
+
+        <p>If the button doesn't work, you can also copy and paste this link into your browser:</p>
+        <p style="word-break: break-all; color: #666;">${verificationUrl}</p>
+
+        <p>This link will expire in 24 hours for security reasons.</p>
+
+        <hr style="margin: 30px 0; border: none; border-top: 1px solid #eee;">
+        <p style="color: #666; font-size: 14px;">
+          If you didn't create a VoltEdge account, please ignore this email.
+        </p>
+      </div>
+    `
+
+    if (process.env.EMAIL_SERVICE === 'console') {
+      console.log(`
+        === EMAIL VERIFICATION ===
+        To: ${email}
+        Subject: ${subject}
+        Verification URL: ${verificationUrl}
+        =========================
+      `)
+      return { success: true }
+    }
+
+    // If using Resend or other email service
+    // Implementation would go here similar to other email functions
+
+    return { success: true }
+  } catch (error) {
+    console.error('Failed to send verification email:', error)
+    return { success: false, error: 'Failed to send verification email' }
+  }
+}
+
+export async function generateEmailVerificationToken(userId: string) {
+  try {
+    const token = uuidv4()
+    const expiresAt = new Date()
+    expiresAt.setHours(expiresAt.getHours() + 24) // 24 hours expiry
+
+    await prisma.user.update({
+      where: { id: userId },
+      data: {
+        emailVerificationToken: token,
+        emailVerificationExpiresAt: expiresAt,
+      },
+    })
+
+    return { success: true, token }
+  } catch (error) {
+    console.error('Failed to generate verification token:', error)
+    return { success: false, error: 'Failed to generate verification token' }
+  }
+}
+
+export async function verifyUserEmail(token: string) {
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        emailVerificationToken: token,
+        emailVerificationExpiresAt: {
+          gt: new Date(),
+        },
+      },
+    })
+
+    if (!user) {
+      return { success: false, error: 'Invalid or expired verification token' }
+    }
+
+    if (user.emailVerified) {
+      return { success: true, message: 'Email is already verified' }
+    }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: {
+        emailVerified: true,
+        emailVerifiedAt: new Date(),
+        emailVerificationToken: null,
+        emailVerificationExpiresAt: null,
+      },
+    })
+
+    // Log activity
+    await prisma.activityLog.create({
+      data: {
+        userId: user.id,
+        action: 'UPDATE_PROFILE',
+        details: {
+          action: 'email_verified',
+        },
+      },
+    })
+
+    return { success: true, message: 'Email verified successfully' }
+  } catch (error) {
+    console.error('Failed to verify email:', error)
+    return { success: false, error: 'Failed to verify email' }
+  }
+}

@@ -2,18 +2,23 @@
 
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
+import { useSession } from 'next-auth/react'
 import { cn } from '@/lib/utils'
 import {
   Home,
   Users,
   FileText,
   Package,
-  Calculator,
   Settings,
   BarChart3,
   Zap,
   UserPlus,
   Shield,
+  Battery,
+  DollarSign,
+  Globe,
+  Activity,
+  Wrench,
 } from 'lucide-react'
 import { Badge } from '@/components/ui/badge'
 import { Separator } from '@/components/ui/separator'
@@ -25,20 +30,26 @@ const navigationItems = [
     icon: Home,
   },
   {
+    title: 'GST Calculator',
+    href: '/dashboard/gst-calculator',
+    icon: DollarSign,
+    badge: 'New',
+  },
+  {
+    title: 'Battery Calculator',
+    href: '/dashboard/battery-calculator',
+    icon: Battery,
+    badge: 'New',
+  },
+  {
     title: 'Quotations',
     href: '/dashboard/quotations',
     icon: FileText,
-    badge: 'New',
   },
   {
     title: 'Products',
     href: '/dashboard/products',
     icon: Package,
-  },
-  {
-    title: 'Calculator',
-    href: '/dashboard/calculator',
-    icon: Calculator,
   },
   {
     title: 'Customers',
@@ -52,6 +63,19 @@ const navigationItems = [
   },
 ]
 
+const businessItems = [
+  {
+    title: 'Landing Page',
+    href: '/dashboard/landing-page',
+    icon: Globe,
+  },
+  {
+    title: 'Warranties',
+    href: '/dashboard/warranties',
+    icon: Shield,
+  },
+]
+
 const adminItems = [
   {
     title: 'User Management',
@@ -59,14 +83,20 @@ const adminItems = [
     icon: UserPlus,
   },
   {
+    title: 'Activity Logs',
+    href: '/dashboard/admin/activities',
+    icon: Activity,
+  },
+  {
     title: 'System Settings',
     href: '/dashboard/admin/settings',
-    icon: Shield,
+    icon: Wrench,
   },
 ]
 
 export function DashboardSidebar() {
   const pathname = usePathname()
+  const { data: session } = useSession()
 
   return (
     <div className='bg-background flex h-full w-64 flex-col border-r shadow-sm'>
@@ -84,6 +114,7 @@ export function DashboardSidebar() {
 
       {/* Navigation */}
       <nav className='flex-1 space-y-1 px-3 py-4'>
+        {/* Main Navigation */}
         {navigationItems.map(item => {
           const isActive = pathname === item.href
           return (
@@ -110,30 +141,62 @@ export function DashboardSidebar() {
 
         <Separator className='my-4' />
 
-        {/* Admin Section */}
-        <div className='space-y-1'>
-          <h3 className='text-muted-foreground px-3 text-xs font-semibold tracking-wider uppercase'>
-            Administration
-          </h3>
-          {adminItems.map(item => {
-            const isActive = pathname === item.href
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={cn(
-                  'flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
-                  isActive
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
-                )}
-              >
-                <item.icon className='h-5 w-5' />
-                <span>{item.title}</span>
-              </Link>
-            )
-          })}
-        </div>
+        {/* Business Features for Dealers */}
+        {session?.user?.role === 'DEALER' && (
+          <>
+            <div className='space-y-1'>
+              <h3 className='text-muted-foreground px-3 text-xs font-semibold tracking-wider uppercase'>
+                Business Tools
+              </h3>
+              {businessItems.map(item => {
+                const isActive = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      'flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                      isActive
+                        ? 'bg-primary text-primary-foreground'
+                        : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                    )}
+                  >
+                    <item.icon className='h-5 w-5' />
+                    <span>{item.title}</span>
+                  </Link>
+                )
+              })}
+            </div>
+            <Separator className='my-4' />
+          </>
+        )}
+
+        {/* Admin Section for Master Users */}
+        {session?.user?.role === 'MASTER' && (
+          <div className='space-y-1'>
+            <h3 className='text-muted-foreground px-3 text-xs font-semibold tracking-wider uppercase'>
+              Administration
+            </h3>
+            {adminItems.map(item => {
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  className={cn(
+                    'flex items-center space-x-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors',
+                    isActive
+                      ? 'bg-primary text-primary-foreground'
+                      : 'text-muted-foreground hover:bg-accent hover:text-accent-foreground'
+                  )}
+                >
+                  <item.icon className='h-5 w-5' />
+                  <span>{item.title}</span>
+                </Link>
+              )
+            })}
+          </div>
+        )}
       </nav>
 
       {/* Settings at bottom */}

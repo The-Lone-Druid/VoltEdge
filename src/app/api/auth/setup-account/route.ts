@@ -4,11 +4,11 @@ import bcrypt from 'bcryptjs'
 
 export async function POST(request: NextRequest) {
   try {
-    const { token, firstName, lastName, password } = await request.json()
+    const { token, password } = await request.json()
 
-    if (!token || !firstName || !lastName || !password) {
+    if (!token || !password) {
       return NextResponse.json(
-        { error: 'All fields are required' },
+        { error: 'Token and password are required' },
         { status: 400 }
       )
     }
@@ -39,8 +39,6 @@ export async function POST(request: NextRequest) {
       prisma.user.update({
         where: { id: user.id },
         data: {
-          firstName,
-          lastName,
           passwordHash: hashedPassword,
           status: 'ACTIVE',
           emailVerified: true,
@@ -55,8 +53,7 @@ export async function POST(request: NextRequest) {
           action: 'UPDATE_PROFILE',
           details: {
             action: 'account_setup_completed',
-            firstName,
-            lastName,
+            email: user.email,
           },
         },
       }),

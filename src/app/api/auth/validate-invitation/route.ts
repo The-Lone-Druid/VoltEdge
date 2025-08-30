@@ -19,12 +19,12 @@ export async function GET(request: NextRequest) {
         },
         status: 'PENDING_INVITATION',
       },
-      include: {
-        dealerProfile: {
-          select: {
-            businessName: true,
-          },
-        },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
       },
     })
 
@@ -37,14 +37,69 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       invitation: {
+        firstName: user.firstName,
+        lastName: user.lastName,
         email: user.email,
-        dealerName: user.dealerProfile?.businessName,
+        role: user.role,
       },
     })
   } catch (error) {
     console.error('Invitation validation error:', error)
     return NextResponse.json(
       { error: 'Failed to validate invitation' },
+      { status: 500 }
+    )
+  }
+}
+
+export async function POST(request: NextRequest) {
+  try {
+    const { token } = await request.json()
+
+    if (!token) {
+      return NextResponse.json(
+        { message: 'Token is required' },
+        { status: 400 }
+      )
+    }
+
+    // Find user with valid invitation token
+    const user = await prisma.user.findFirst({
+      where: {
+        invitationToken: token,
+        invitationExpiresAt: {
+          gt: new Date(),
+        },
+        status: 'PENDING_INVITATION',
+      },
+      select: {
+        id: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        role: true,
+      },
+    })
+
+    if (!user) {
+      return NextResponse.json(
+        { message: 'Invalid or expired invitation token' },
+        { status: 400 }
+      )
+    }
+
+    return NextResponse.json({
+      invitation: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        role: user.role,
+      },
+    })
+  } catch (error) {
+    console.error('Failed to validate invitation:', error)
+    return NextResponse.json(
+      { message: 'Internal server error' },
       { status: 500 }
     )
   }
