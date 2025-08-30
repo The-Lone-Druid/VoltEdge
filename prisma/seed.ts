@@ -1,13 +1,11 @@
 import {
-  PrismaClient,
   UserRole,
   UserStatus,
   ProductCategory,
   BatteryType,
 } from '../src/generated/prisma'
+import { prisma } from '../src/lib/db'
 import bcrypt from 'bcryptjs'
-
-const prisma = new PrismaClient()
 
 async function main() {
   console.log('🌱 Starting database seeding...')
