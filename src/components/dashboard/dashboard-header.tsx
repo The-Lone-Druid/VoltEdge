@@ -166,7 +166,7 @@ export function DashboardHeader() {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <AnimatedThemeToggler className='w-full'>
+                <AnimatedThemeToggler className='flex w-full items-center gap-2'>
                   <span>Change Theme</span>
                 </AnimatedThemeToggler>
               </DropdownMenuItem>

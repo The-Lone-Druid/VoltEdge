@@ -1,11 +1,11 @@
+import bcrypt from 'bcryptjs'
 import {
+  BatteryType,
+  ProductCategory,
   UserRole,
   UserStatus,
-  ProductCategory,
-  BatteryType,
 } from '../src/generated/prisma'
 import { prisma } from '../src/lib/db'
-import bcrypt from 'bcryptjs'
 
 async function main() {
   console.log('🌱 Starting database seeding...')
@@ -203,8 +203,8 @@ async function main() {
       businessName: 'VoltEdge Demo Store',
       businessType: 'Electrical Equipment Dealer',
       gstNumber: '29ABCDE1234F1Z5',
-      phone: '+91-9876543210',
-      whatsapp: '+91-9876543210',
+      phone: '+91-8446131207',
+      whatsapp: '+91-8446131207',
       address: '123 Electronics Market, MG Road',
       city: 'Bangalore',
       state: 'Karnataka',
