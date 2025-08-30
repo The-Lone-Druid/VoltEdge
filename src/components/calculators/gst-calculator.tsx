@@ -327,14 +327,14 @@ export function GSTCalculator() {
     const categoryInfo = categories.find(c => c.category === selectedCategory)
 
     return `
-GST Calculation Summary:
-Product Category: ${categoryInfo?.description || selectedCategory}
-${isInclusive ? 'Inclusive' : 'Exclusive'} Amount: ${formatCurrency(parseFloat(amount))}
-GST Rate: ${gstRate}%
-Base Amount: ${formatCurrency(calculation.originalAmount)}
-GST Amount: ${formatCurrency(calculation.gstAmount)}
-Total Amount: ${formatCurrency(calculation.totalAmount)}
-${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${formatCurrency(calculation.breakdown.sgst)}` : `IGST: ${formatCurrency(calculation.breakdown.igst)}`}
+        GST Calculation Summary:
+        Product Category: ${categoryInfo?.description || selectedCategory}
+        ${isInclusive ? 'Inclusive' : 'Exclusive'} Amount: ${formatCurrency(parseFloat(amount))}
+        GST Rate: ${gstRate}%
+        Base Amount: ${formatCurrency(calculation.originalAmount)}
+        GST Amount: ${formatCurrency(calculation.gstAmount)}
+        Total Amount: ${formatCurrency(calculation.totalAmount)}
+        ${isIntraState ? `CGST: ${formatCurrency(calculation.breakdown.cgst)}, SGST: ${formatCurrency(calculation.breakdown.sgst)}` : `IGST: ${formatCurrency(calculation.breakdown.igst)}`}
     `.trim()
   }
 

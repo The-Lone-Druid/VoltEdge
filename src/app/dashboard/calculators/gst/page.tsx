@@ -1,5 +1,5 @@
-import { Metadata } from 'next'
 import { GSTCalculator } from '@/components/calculators/gst-calculator'
+import { Metadata } from 'next'
 import { PageHeader } from '../../../../components/dashboard/page-header'
 
 export const metadata: Metadata = {
@@ -10,14 +10,13 @@ export const metadata: Metadata = {
 
 export default function GSTCalculatorPage() {
   return (
-    <div className='space-y-6'>
+    <div className='container mx-auto space-y-6'>
       <PageHeader
         title={'GST Calculator'}
         subtitle={
           'Calculate GST for your electrical products with real-time rates from your catalog.'
         }
       />
-
       <GSTCalculator />
     </div>
   )

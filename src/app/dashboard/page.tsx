@@ -1,4 +1,3 @@
-import { getSession } from '@/lib/auth-utils'
 import {
   Card,
   CardContent,
@@ -6,7 +5,8 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { FileText, Package, Users, Calculator, TrendingUp } from 'lucide-react'
+import { getSession } from '@/lib/auth-utils'
+import { Calculator, FileText, Package, TrendingUp, Users } from 'lucide-react'
 import { PageHeader } from '../../components/dashboard/page-header'
 
 export default async function DashboardPage() {
@@ -77,7 +77,7 @@ export default async function DashboardPage() {
         </Card>
       </div>
       {/* Recent Activity and Quick Actions */}
-      <div className='grid gap-4 sm:gap-6 xl:grid-cols-2'>
+      <div className='grid grid-cols-1 gap-4 sm:gap-6 xl:grid-cols-2'>
         {/* Recent Quotations */}
         <Card>
           <CardHeader className='pb-4'>

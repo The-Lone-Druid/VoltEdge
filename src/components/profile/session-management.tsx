@@ -1,18 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { signOut } from 'next-auth/react'
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
 import {
   AlertDialog,
   AlertDialogAction,
@@ -24,15 +12,27 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from '@/components/ui/alert-dialog'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card'
+import { Separator } from '@/components/ui/separator'
+import {
+  AlertTriangle,
+  Clock,
   Laptop,
+  LogOut,
+  MapPin,
   Smartphone,
   Tablet,
-  MapPin,
-  Clock,
-  LogOut,
-  AlertTriangle,
 } from 'lucide-react'
+import { signOut } from 'next-auth/react'
+import { useEffect, useState } from 'react'
 
 interface UserSession {
   id: string
@@ -195,7 +195,7 @@ export function SessionManagement() {
         )}
 
         {/* Revoke All Sessions */}
-        <div className='flex items-center justify-between rounded-lg border p-4'>
+        <div className='flex flex-wrap items-center justify-between rounded-lg border p-4'>
           <div className='flex items-center space-x-3'>
             <AlertTriangle className='text-destructive h-5 w-5' />
             <div>
@@ -251,7 +251,7 @@ export function SessionManagement() {
               {sessions.map(userSession => (
                 <div
                   key={userSession.id}
-                  className='flex items-center justify-between rounded-lg border p-4'
+                  className='flex flex-wrap items-center justify-between rounded-lg border p-4'
                 >
                   <div className='flex items-center space-x-3'>
                     {getDeviceIcon(userSession.deviceInfo)}

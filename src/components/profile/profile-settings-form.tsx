@@ -1,11 +1,7 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
-import { useForm } from 'react-hook-form'
-import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
-import { useSearchParams } from 'next/navigation'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
 import {
   Card,
   CardContent,
@@ -13,8 +9,6 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Input } from '@/components/ui/input'
-import { Alert, AlertDescription } from '@/components/ui/alert'
 import {
   Form,
   FormControl,
@@ -23,10 +17,16 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
-import { Badge } from '@/components/ui/badge'
-import { Loader2, User, Lock, Mail, CheckCircle, Monitor } from 'lucide-react'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { zodResolver } from '@hookform/resolvers/zod'
+import { CheckCircle, Loader2, Lock, Mail, Monitor, User } from 'lucide-react'
+import { useSession } from 'next-auth/react'
+import { useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
+import { useForm } from 'react-hook-form'
+import { z } from 'zod'
 import { Button } from '../ui/button'
 import { SessionManagement } from './session-management'
 
@@ -207,7 +207,7 @@ export function ProfileSettingsForm() {
           </CardHeader>
           <CardContent className='space-y-6'>
             {/* Account Status */}
-            <div className='flex items-center justify-between rounded-lg border p-4'>
+            <div className='flex flex-wrap items-center justify-between rounded-lg border p-4'>
               <div className='flex items-center space-x-3'>
                 <Mail className='text-muted-foreground h-5 w-5' />
                 <div>

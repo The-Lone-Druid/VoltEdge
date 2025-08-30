@@ -1,7 +1,8 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { useSession } from 'next-auth/react'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
   Card,
   CardContent,
@@ -9,9 +10,13 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card'
-import { Button } from '@/components/ui/button'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
-import { Badge } from '@/components/ui/badge'
 import {
   Table,
   TableBody,
@@ -21,26 +26,21 @@ import {
   TableRow,
 } from '@/components/ui/table'
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu'
-import { Alert, AlertDescription } from '@/components/ui/alert'
-import {
-  Users,
-  UserPlus,
-  MoreHorizontal,
+  Clock,
+  Filter,
   Mail,
+  MoreHorizontal,
+  RefreshCw,
+  Search,
   Shield,
   ShieldOff,
-  Clock,
-  Search,
-  Filter,
-  RefreshCw,
+  UserPlus,
+  Users,
 } from 'lucide-react'
-import { InviteUserDialog } from './invite-user-dialog'
+import { useSession } from 'next-auth/react'
+import { useEffect, useState } from 'react'
 import { PageHeader } from '../dashboard/page-header'
+import { InviteUserDialog } from './invite-user-dialog'
 
 interface User {
   id: string
@@ -279,7 +279,7 @@ export function UserManagementDashboard() {
   }
 
   return (
-    <div className='space-y-6'>
+    <div className='container mx-auto space-y-6'>
       {/* Header */}
       <PageHeader
         title={'User Management'}
