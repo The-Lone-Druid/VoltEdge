@@ -130,14 +130,3 @@ All core requirements have been implemented:
 - ✅ User-friendly calculator interfaces
 
 The system now provides dealers with powerful pricing tools that support both business-to-business and consumer sales scenarios, with proper GST handling and bulk discount structures.
-
-## 🚀 READY FOR NEXT EPIC
-
-**Epic 2: Battery Warranty & Backup Estimation**
-
-- Battery capacity calculations
-- Backup time estimation
-- Warranty tracking system
-- Load calculation tools
-
-The pricing foundation is now solid and ready to support the next phase of VoltEdge development.
