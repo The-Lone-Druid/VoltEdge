@@ -1,8 +1,8 @@
-import { Metadata } from 'next'
-import { redirect } from 'next/navigation'
-import { getServerSession } from 'next-auth'
-import { authOptions } from '@/lib/auth'
 import { ActivityLogsView } from '@/components/admin/activity-logs-view'
+import { authOptions } from '@/lib/auth'
+import { Metadata } from 'next'
+import { getServerSession } from 'next-auth'
+import { redirect } from 'next/navigation'
 import { PageHeader } from '../../../../components/dashboard/page-header'
 
 export const metadata: Metadata = {
@@ -19,7 +19,7 @@ export default async function ActivityLogsPage() {
   }
 
   return (
-    <div className='container mx-auto py-6'>
+    <div className='container mx-auto space-y-6'>
       <PageHeader
         title={'Activity Logs'}
         subtitle={
