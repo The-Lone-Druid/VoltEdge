@@ -78,9 +78,9 @@ export function HeroSection() {
               </h1>
 
               <p className='max-w-2xl text-lg leading-relaxed text-gray-200 sm:text-xl lg:text-2xl'>
-                Complete electrical solutions for modern businesses. From GST
-                calculations to battery warranties, we&apos;ve got you covered
-                with our comprehensive B2B platform.
+                Premium batteries, inverters, and auto electrical solutions for
+                your home and vehicle needs. Expert installation, genuine
+                products, and reliable service you can trust.
               </p>
             </div>
 
