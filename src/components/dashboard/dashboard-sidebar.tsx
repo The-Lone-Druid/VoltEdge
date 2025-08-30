@@ -1,31 +1,30 @@
 'use client'
 
-import Link from 'next/link'
-import { usePathname } from 'next/navigation'
-import { useSession } from 'next-auth/react'
-import { useState, useEffect } from 'react'
+import { Separator } from '@/components/ui/separator'
+import { Sheet, SheetContent, SheetTitle } from '@/components/ui/sheet'
+import { useIsMobile } from '@/hooks/use-mobile'
 import { cn } from '@/lib/utils'
 import {
-  Home,
-  Users,
+  Activity,
+  BarChart3,
+  Battery,
+  Calculator,
+  DollarSign,
   FileText,
+  Globe,
+  Home,
   Package,
   Settings,
-  BarChart3,
-  Zap,
-  UserPlus,
   Shield,
-  Battery,
-  DollarSign,
-  Globe,
-  Activity,
+  UserPlus,
+  Users,
   Wrench,
-  Calculator,
+  Zap,
 } from 'lucide-react'
-import { Badge } from '@/components/ui/badge'
-import { Separator } from '@/components/ui/separator'
-import { Sheet, SheetContent } from '@/components/ui/sheet'
-import { useIsMobile } from '@/hooks/use-mobile'
+import { useSession } from 'next-auth/react'
+import Link from 'next/link'
+import { usePathname } from 'next/navigation'
+import { useEffect, useState } from 'react'
 
 const navigationItems = [
   {
@@ -37,19 +36,16 @@ const navigationItems = [
     title: 'GST Calculator',
     href: '/dashboard/calculators/gst',
     icon: DollarSign,
-    badge: 'New',
   },
   {
     title: 'Pricing Calculator',
     href: '/dashboard/calculators/pricing',
     icon: Calculator,
-    badge: 'New',
   },
   {
     title: 'Battery Calculator',
     href: '/dashboard/battery-calculator',
     icon: Battery,
-    badge: 'New',
   },
   {
     title: 'Quotations',
@@ -148,14 +144,6 @@ function SidebarContent({ onClose }: { onClose?: () => void }) {
               >
                 <item.icon className='h-5 w-5 flex-shrink-0' />
                 <span className='flex-1 truncate'>{item.title}</span>
-                {item.badge && (
-                  <Badge
-                    variant='secondary'
-                    className='ml-auto flex-shrink-0 text-xs'
-                  >
-                    {item.badge}
-                  </Badge>
-                )}
               </Link>
             )
           })}
@@ -266,6 +254,7 @@ export function DashboardSidebar() {
     return (
       <Sheet open={isOpen} onOpenChange={setIsOpen}>
         <SheetContent side='left' className='w-80 p-0'>
+          <SheetTitle className='sr-only'>Navigation Menu</SheetTitle>
           <div className='bg-background h-full'>
             <SidebarContent onClose={() => setIsOpen(false)} />
           </div>

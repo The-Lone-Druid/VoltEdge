@@ -1,19 +1,8 @@
 'use client'
 
-import Link from 'next/link'
-import { useSession, signOut } from 'next-auth/react'
-import {
-  Bell,
-  Search,
-  ChevronDown,
-  LogOut,
-  User,
-  Settings,
-  Monitor,
-  Menu,
-} from 'lucide-react'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -22,9 +11,21 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Badge } from '@/components/ui/badge'
+import { Input } from '@/components/ui/input'
 import { useIsMobile } from '@/hooks/use-mobile'
+import {
+  Bell,
+  ChevronDown,
+  LogOut,
+  Menu,
+  Monitor,
+  Search,
+  Settings,
+  User,
+} from 'lucide-react'
+import { signOut, useSession } from 'next-auth/react'
+import Link from 'next/link'
+import { AnimatedThemeToggler } from '../magicui/animated-theme-toggler'
 
 export function DashboardHeader() {
   const { data: session } = useSession()
@@ -163,6 +164,11 @@ export function DashboardHeader() {
                   <Monitor className='mr-2 h-4 w-4' />
                   <span>Active Sessions</span>
                 </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <AnimatedThemeToggler className='w-full'>
+                  <span>Change Theme</span>
+                </AnimatedThemeToggler>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={handleSignOut}>
